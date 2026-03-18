@@ -1,0 +1,21 @@
+{
+  "stats": {
+    "totalCars": 25,
+    "totalBookings": 18,
+    "availableCars": 7,
+    "totalCustomers": 12
+  },
+  "monthlyBookings": {
+    "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    "data": [3, 5, 2, 6, 8, 4]
+  },
+  "carStatus": {
+    "available": 7,
+    "booked": 15,
+    "maintenance": 3
+  },
+  "revenueTrend": {
+    "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    "data": [12000, 15000, 9000, 18000, 20000, 17000]
+  }
+}

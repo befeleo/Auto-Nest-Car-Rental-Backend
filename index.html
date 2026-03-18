@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Car Rental</title>
+    <link rel="stylesheet" href="css/common.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="shortcut icon" href="assets/favicon/car.png" />
+  </head>
+  <body>
+    <header class="hero">
+      <nav class="nav-bar-home">
+        <a href="#" class="logo">
+          <img src="assets/images/logo.png" alt="logo" />
+        </a>
+        <div class="nav-bar-links">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about-contact.html">About Us</a></li>
+            <li><a href="services.html">Car Service</a></li>
+            <li><a href="about-contact.html#contact">Contact</a></li>
+          </ul>
+        </div>
+      </nav>
+      <div class="hero-content">
+        <h1>Auto Nest Car <span>Rental</span></h1>
+        <p>
+          Your trusted partner for premium vehicles, smooth rentals, and
+          unbeatable car deals.
+        </p>
+        <a href="services.html" class="hero-btn">Explore Cars</a>
+      </div>
+    </header>
+
+    <section id="about-us" class="about-us-section">
+      <div class="card">
+        <h1>About Us</h1>
+        <p>
+          Auto Nest is your trusted partner for premium vehicle rentals and
+          sales. We provide high-quality cars, smooth rental experiences, and
+          unbeatable deals for all types of customers. Our mission is to make
+          car ownership and rentals easy, reliable, and enjoyable. Whether you
+          are looking for a short-term rental, a luxury car for a special
+          occasion, or planning to purchase a vehicle, Auto Nest has you
+          covered. We are committed to customer satisfaction, transparent
+          pricing, and top-notch service at every step.
+        </p>
+      </div>
+
+      <div class="card photo-card">
+        <img
+          src="assets/images/pexels-hyundaimotorgroup-18714761.jpg"
+          alt="Car Image"
+        />
+      </div>
+    </section>
+
+    <!-- Popular Cars -->
+    <section class="car-section popular-cars-section">
+      <h2>POPULAR NEW CARS</h2>
+      <div class="popular-car-grid" id="popular-car-grid"></div>
+    </section>
+
+    <!-- Brands -->
+    <section class="car-section brands-section">
+      <div class="section">
+        <div class="section-header">
+          <h2 class="section-title">Search new cars by brand</h2>
+        </div>
+
+        <div class="brands-container">
+          <div class="brand-card" data-brand="Toyota">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/toyota-brand-logo.svg"
+                alt="toyota car logo"
+              />
+            </div>
+            <div class="brand-name">Toyota</div>
+          </div>
+
+          <div class="brand-card" data-brand="Hyundai">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/hyundai-brand-logo.svg"
+                alt="hyundai car logo"
+              />
+            </div>
+            <div class="brand-name">Hyundai</div>
+          </div>
+
+          <div class="brand-card" data-brand="BMW">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/bmw-brand-logo.svg"
+                alt="bmw car logo"
+              />
+            </div>
+            <div class="brand-name">BMW</div>
+          </div>
+
+          <div class="brand-card" data-brand="Volkswagen">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/volkswagen-brand-logo.svg"
+                alt="volkswagen car logo"
+              />
+            </div>
+            <div class="brand-name">Volkswagen</div>
+          </div>
+
+          <div class="brand-card" data-brand="Mercedes Benz">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/mercedes-benz-brand-logo.svg"
+                alt="mercedes benz car logo"
+              />
+            </div>
+            <div class="brand-name">Mercedes Benz</div>
+          </div>
+
+          <div class="brand-card" data-brand="Ford">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/ford-brand-logo.svg"
+                alt="ford car logo"
+              />
+            </div>
+            <div class="brand-name">Ford</div>
+          </div>
+        </div>
+
+        <!-- More brands -->
+        <div class="brands-container" id="more-brands">
+          <div class="brand-card" data-brand="RAV4">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/rav4-brand-logo.svg"
+                alt="rav4 car logo"
+              />
+            </div>
+            <div class="brand-name">RAV4</div>
+          </div>
+
+          <div class="brand-card" data-brand="BYD">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/byd-brand-logo.svg"
+                alt="byd car logo"
+              />
+            </div>
+            <div class="brand-name">BYD</div>
+          </div>
+
+          <div class="brand-card" data-brand="Suzuki">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/suzuki-brand-logo.svg"
+                alt="suzuki car logo "
+              />
+            </div>
+            <div class="brand-name">Suzuki</div>
+          </div>
+
+          <div class="brand-card" data-brand="Mitsubishi">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/mitsubishi-brand-logo.svg"
+                alt="mitsubishi car logo"
+              />
+            </div>
+            <div class="brand-name">Mitsubishi</div>
+          </div>
+
+          <div class="brand-card" data-brand="Isuzu">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/isuzu-brand-logo.svg"
+                alt="isuzu car logo"
+              />
+            </div>
+            <div class="brand-name">Isuzu</div>
+          </div>
+
+          <div class="brand-card" data-brand="Kia">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/kia-brand-logo.svg"
+                alt="kia car logo"
+              />
+            </div>
+            <div class="brand-name">Kia</div>
+          </div>
+
+          <div class="brand-card" data-brand="Iveco">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/iveco-brand-logo.svg"
+                alt="iveco car logo"
+              />
+            </div>
+            <div class="brand-name">Iveco</div>
+          </div>
+
+          <div class="brand-card" data-brand="Nissan">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/nissan-brand-logo.svg"
+                alt="nissan car logo"
+              />
+            </div>
+            <div class="brand-name">Nissan</div>
+          </div>
+
+          <div class="brand-card" data-brand="Jetour">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/jetour-brand-logo.svg"
+                alt="jetour car logo"
+              />
+            </div>
+            <div class="brand-name">Jetour</div>
+          </div>
+
+          <div class="brand-card" data-brand="Chery">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/chery-brand-logo.svg"
+                alt="chery car logo"
+              />
+            </div>
+            <div class="brand-name">Chery</div>
+          </div>
+
+          <div class="brand-card" data-brand="Lifan">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/lifan-brand-logo.svg"
+                alt="lifan car logo"
+              />
+            </div>
+            <div class="brand-name">Lifan</div>
+          </div>
+
+          <div class="brand-card" data-brand="Tata">
+            <div class="brand-logo">
+              <img
+                src="assets/images/car brands/tata-brand-logo.svg"
+                alt="tata car logo"
+              />
+            </div>
+            <div class="brand-name">Tata</div>
+          </div>
+        </div>
+
+        <div class="toggle-more">
+          <button class="toggle-btn" id="toggleBtn">View All</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="car-section filters-section">
+      <div class="section">
+        <div class="section-header">
+          <h2 class="section-title">Find New Cars of Your Choice</h2>
+        </div>
+        <div class="tabs">
+          <ul class="tab-links">
+            <li class="tab-link active">
+              <a href="#" class="price-range">Price Range</a>
+            </li>
+            <li class="tab-link">
+              <a href="#" class="fuel-type">Fuel Type</a>
+            </li>
+            <li class="tab-link">
+              <a href="#" class="body-type">Body Type</a>
+            </li>
+            <li class="tab-link">
+              <a href="#" class="more">More</a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <!-- Price range tab -->
+            <div id="price-range" class="tab-panel active">
+              <div class="filter-options">
+                <div class="filter-option price-option" data-filter="range-1">
+                  <a href="#">
+                    <span class="price-range">Under 2000 ETB</span>
+                  </a>
+                </div>
+                <div class="filter-option price-option" data-filter="range-2">
+                  <a href="#">
+                    <span class="price-range">2,000 - 3,000 ETB</span>
+                  </a>
+                </div>
+                <div class="filter-option price-option" data-filter="range-3">
+                  <a href="#">
+                    <span class="price-range">3,000 - 4,000 ETB</span>
+                  </a>
+                </div>
+                <div class="filter-option price-option" data-filter="range-4">
+                  <a href="#">
+                    <span class="price-range">4,000 - 5,000 ETB</span>
+                  </a>
+                </div>
+                <div class="filter-option price-option" data-filter="range-5">
+                  <a href="#">
+                    <span class="price-range">5,000 - 6,000 ETB</span>
+                  </a>
+                </div>
+                <div class="filter-option price-option" data-filter="range-6">
+                  <a href="#">
+                    <span class="price-range">Above 6,000 ETB</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fuel type tab-->
+            <div id="fuel-type" class="tab-panel">
+              <div class="filter-options">
+                <div class="filter-option fuel-option" data-filter="petrol">
+                  <a href="#">
+                    <span>Petrol</span>
+                  </a>
+                </div>
+                <div class="filter-option fuel-option" data-filter="diesel">
+                  <a href="#">
+                    <span>Diesel</span>
+                  </a>
+                </div>
+                <div class="filter-option fuel-option" data-filter="electric">
+                  <a href="#">
+                    <span>Electric</span>
+                  </a>
+                </div>
+                <div class="filter-option fuel-option" data-filter="hybrid">
+                  <a href="#">
+                    <span>Hybrid</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Body type tab -->
+            <div id="body-type" class="tab-panel">
+              <div class="filter-options">
+                <div class="filter-option body-option" data-filter="sedan">
+                  <a href="#">
+                    <span>Sedan</span>
+                  </a>
+                </div>
+                <div class="filter-option body-option" data-filter="suv">
+                  <a href="#">
+                    <span>SUV</span>
+                  </a>
+                </div>
+                <div class="filter-option body-option" data-filter="pickup">
+                  <a href="#">
+                    <span>Pickup</span>
+                  </a>
+                </div>
+                <div class="filter-option body-option" data-filter="hatchback">
+                  <a href="#">
+                    <span>Hatchback</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- More type tab -->
+            <div id="more" class="tab-panel">
+              <div class="filter-options">
+                <div class="filter-option more-option" data-filter="popular">
+                  <a href="#">
+                    <span>Popular</span>
+                  </a>
+                </div>
+                <div class="filter-option more-option" data-filter="luxury">
+                  <a href="#">
+                    <span>Luxury</span>
+                  </a>
+                </div>
+                <div class="filter-option more-option" data-filter="used">
+                  <a href="#">
+                    <span>Used</span>
+                  </a>
+                </div>
+                <div class="filter-option more-option" data-filter="new">
+                  <a href="#">
+                    <span>New</span>
+                  </a>
+                </div>
+                <div class="filter-option more-option" data-filter="automatic">
+                  <a href="#">
+                    <span>Automatic</span>
+                  </a>
+                </div>
+                <div class="filter-option more-option" data-filter="manual">
+                  <a href="#">
+                    <span>Manual</span>
+                  </a>
+                </div>
+                <div class="filter-option more-option" data-filter="seats-5">
+                  <a href="#">
+                    <span>5 Seats</span>
+                  </a>
+                </div>
+                <div class="filter-option more-option" data-filter="seats-7">
+                  <a href="#">
+                    <span>7 Seats</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <button type="button" id="back-to-top">
+      <img src="assets/icons/arrow-circle-up.svg" alt="back to top" />
+    </button>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-container footer-top">
+        <div class="footer-info">
+          <div class="footer-logo-container">
+            <img src="assets/images/logo.png" alt="logo" />
+            <span class="logo-text">Auto Nest</span>
+          </div>
+          <p class="tagline">
+            Your trusted partner for car rentals in Ethiopia
+          </p>
+          <div class="social-links">
+            <a
+              href="https://t.me/autonest"
+              class="social-link"
+              target="_blank"
+              rel="noopener"
+              ><img src="assets/icons/telegram-logo.svg" alt="Telegram" />
+            </a>
+            <a
+              href="https://facebook.com/autonest"
+              class="social-link"
+              target="_blank"
+              rel="noopener"
+              ><img src="assets/icons/facebook-logo.svg" alt="Facebook" />
+            </a>
+            <a
+              href="https://linkedin.com/company/autonest"
+              class="social-link"
+              target="_blank"
+              rel="noopener"
+              ><img src="assets/icons/linkedin-logo.svg" alt="LinkedIn" />
+            </a>
+            <a
+              href="https://x.com/autonest"
+              class="social-link"
+              target="_blank"
+              rel="noopener"
+              ><img src="assets/icons/x-logo.svg" alt="X (Twitter)" />
+            </a>
+            <a
+              href="https://instagram.com/autonest"
+              class="social-link"
+              target="_blank"
+              rel="noopener"
+              ><img src="assets/icons/instagram-logo.svg" alt="Instagram" />
+            </a>
+            <a
+              href="https://tiktok.com/@autonest"
+              class="social-link"
+              target="_blank"
+              rel="noopener"
+              ><img src="assets/icons/tiktok-logo.svg" alt="Tiktok" />
+            </a>
+          </div>
+        </div>
+
+        <div class="footer-links">
+          <div class="link-column">
+            <h4 class="column-title">PAGES</h4>
+            <ul class="link-list">
+              <li><a href="index.html">Home</a></li>
+              <li><a href="about-contact.html">About Us</a></li>
+              <li><a href="services.html">Car Service</a></li>
+              <li><a href="about-contact.html">Contact</a></li>
+            </ul>
+          </div>
+
+          <div class="link-column">
+            <h4 class="column-title">SUPPORT</h4>
+            <ul class="link-list">
+              <li><a href="#help">Help Center</a></li>
+              <li><a href="#terms">Terms of Service</a></li>
+              <li><a href="#privacy">Privacy Policy</a></li>
+              <li><a href="#cookies">Cookie Policy</a></li>
+            </ul>
+          </div>
+
+          <div class="link-column">
+            <h4 class="column-title">CONTACT US</h4>
+            <div class="contact-info">
+              <div class="contact-link">
+                <img src="assets/icons//phone.svg" alt="Phone" />
+                <a href="tel:+251912345678">+251 912 345 678</a>
+                <p>|</p>
+                <a href="tel:+251912345678">+251 912 345 679</a>
+              </div>
+              <div class="contact-link">
+                <img src="assets/icons/envelope-simple.svg" alt="Email" />
+                <a href="mailto:autonestrental@gmail.com">
+                  support@autonestrental.com
+                </a>
+              </div>
+              <div class="contact-link">
+                <img src="assets/icons/map-pin.svg" alt="Telegram" />
+                <span>Haile Gebrselassie St. Addis Ababa, Ethiopia</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Bottom Section -->
+      <div class="footer-bottom">
+        <div class="footer-info">
+          <p class="footer-description">
+            <span>AutoNest</span> Licensed car rental service provider operating
+            in Ethiopia.
+          </p>
+          <p class="footer-credit">Made with 🤍 in Ethiopia</p>
+        </div>
+        <div class="footer-copyright">
+          <p>&copy; 2025 AutoNest. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+    <script src="js/script.js" defer></script>
+  </body>
+</html>
