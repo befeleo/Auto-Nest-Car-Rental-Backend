@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -256,15 +256,21 @@
                 <span id="closeModalBtn">&times;</span>
               </div>
 
-              <form id="add-car-form">
-                <input type="hidden" id="edit-id" />
+              <!-- form -->
+              <form
+                id="add-car-form"
+                enctype="multipart/form-data"
+                method="POST"
+              >
+                <input type="hidden" id="edit-id" name="id" />
                 <div class="form-grid">
                   <div class="form-group">
                     <label>Brand <span class="required">*</span></label>
                     <input
                       type="text"
                       id="brand"
-                      placeholder="Brand (e.g. Toyota)"
+                      name="brand"
+                      placeholder="Brand"
                       required
                     />
                   </div>
@@ -274,26 +280,30 @@
                     <input
                       type="text"
                       id="name"
-                      placeholder="Model (e.g. Corolla)"
+                      name="name"
+                      placeholder="Model"
                       required
                     />
                   </div>
 
                   <div class="form-group">
-                    <label>
-                      Price per Day (Birr)<span class="required">*</span>
-                    </label>
+                    <label
+                      >Price per Day (Birr)<span class="required"
+                        >*</span
+                      ></label
+                    >
                     <input
                       type="number"
                       id="price"
-                      placeholder="Price per Day (Birr)"
+                      name="price"
+                      placeholder="Price"
                       required
                     />
                   </div>
 
                   <div class="form-group">
                     <label>Fuel Type <span class="required">*</span></label>
-                    <select id="fuelType" title="fuelType">
+                    <select title="fuelype" id="fuelType" name="fuelType">
                       <option value="Petrol">Petrol</option>
                       <option value="Diesel">Diesel</option>
                       <option value="Electric">Electric</option>
@@ -302,7 +312,7 @@
 
                   <div class="form-group">
                     <label>Body Type <span class="required">*</span></label>
-                    <select id="bodyType" title="bodyType">
+                    <select title="bodyType" id="bodyType" name="bodyType">
                       <option value="SUV">SUV</option>
                       <option value="Sedan">Sedan</option>
                       <option value="Pickup">Pickup</option>
@@ -312,7 +322,11 @@
 
                   <div class="form-group">
                     <label>Transmission <span class="required">*</span></label>
-                    <select id="transmission" title="transmission">
+                    <select
+                      title="transmission"
+                      id="transmission"
+                      name="transmission"
+                    >
                       <option value="Automatic">Automatic</option>
                       <option value="Manual">Manual</option>
                     </select>
@@ -321,24 +335,30 @@
 
                 <div class="file-upload-group">
                   <label for="image-upload">Car Image:</label>
-                  <input type="file" id="image-upload" />
+                  <input type="file" id="image-upload" name="car_image" />
                 </div>
 
                 <div class="checkbox-group">
-                  <label><input type="checkbox" id="isUsed" /> Used</label>
-                  <label>
-                    <input type="checkbox" id="isPopular" /> Popular
-                  </label>
-                  <label>
-                    <input type="checkbox" id="isLuxury" /> Luxury Fleet
-                  </label>
+                  <label
+                    ><input type="checkbox" id="isUsed" name="isUsed" />
+                    Used</label
+                  >
+                  <label
+                    ><input type="checkbox" id="isPopular" name="isPopular" />
+                    Popular</label
+                  >
+                  <label
+                    ><input type="checkbox" id="isLuxury" name="isLuxury" />
+                    Luxury Fleet</label
+                  >
                 </div>
 
                 <div class="form-group">
                   <label>Key Features</label>
                   <textarea
                     id="features"
-                    placeholder="Key Features (e.g. AC, Bluetooth, GPS)"
+                    name="features"
+                    placeholder="AC, Bluetooth, GPS"
                   ></textarea>
                 </div>
 
@@ -355,6 +375,6 @@
     </div>
     <script src="js/admin.js"></script>
     <script src="js/dashboard.js"></script>
-    <script src="js/auth.js"></script>
+    <!-- <script src="js/auth.js"></script> -->
   </body>
 </html>

@@ -24,51 +24,37 @@ document.addEventListener('DOMContentLoaded', () => {
 let inventory = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-
-    const savedData = localStorage.getItem('autoNestCars');
-    if (savedData) {
-        inventory = JSON.parse(savedData);
-        renderInventory();
-    }
-
     const form = document.getElementById('add-car-form');
     const modal = document.getElementById('formModal');
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const formData = new FormData(form);
 
-        const editId = document.getElementById('edit-id').value;
+        try {
+            const response = await fetch('admin/add_car.php', {
+                method: 'POST',
+                body: formData
+            });
 
-        const newCar = {
-            id: editId ? parseInt(editId) : Date.now(),
-            brand: document.getElementById('brand').value,
-            name: document.getElementById('name').value,
-            price: parseInt(document.getElementById('price').value),
-            fuelType: document.getElementById('fuelType').value,
-            bodyType: document.getElementById('bodyType').value,
-            transmission: document.getElementById('transmission').value,
-            isUsed: document.getElementById('isUsed').checked,
-            isPopular: document.getElementById('isPopular').checked,
-            isLuxury: document.getElementById('isLuxury').checked,
-            image: "assets/images/car_images/placeholder.png",
-            features: document.getElementById('features').value
-                ? document.getElementById('features').value.split(',').map(f => f.trim()) : []
-        };
-        if (editId) {
-            const index = inventory.findIndex(c => c.id === newCar.id);
-            if (index !== -1) inventory[index] = newCar;
-        } else {
-            inventory.push(newCar);
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                alert('Success: ' + result.message);
+                form.reset();
+            } else {
+                alert('Database Error: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Connection Error:', error);
+            alert('Could not connect to the server. Check if XAMPP is running.');
         }
 
-        saveInventory();
         modal.style.display = 'none';
-        form.reset();
     });
 
     document.getElementById('openModalBtn').addEventListener('click', () => {
         form.reset();
-        document.getElementById('edit-id').value = '';
         document.getElementById('modalTitle').innerText = "Add New Vehicle";
         modal.style.display = 'flex';
     });
@@ -78,145 +64,82 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-const renderInventory = () => {
-    const tbody = document.getElementById('admin-car-list');
-    tbody.innerHTML = inventory.map(car => `
-        <tr class="inventory-row">
-            <td>#${car.id.toString().slice(-4)}</td>
-            <td>${car.brand}</td>
-            <td>${car.name}</td>
-            <td>${car.bodyType}</td>
-            <td class="price-cell">${car.price.toLocaleString()} Birr</td>
-            <td>
-                <div class="action-buttons">
-                    <button class="btn-edit" onclick="editInventory(${car.id})">
-                        <img src="assets/icons/pen.svg" alt="edit"  class="action-img" />
-                    </button>
-                    <button class="btn-delete" onclick="deleteInventory(${car.id})"> 
-                        <img src="assets/icons/trash-can.svg" alt="delete" class="action-img" />
-                    </button>
-                </div>
-            </td>
-        </tr>`).join('');
-}
+const loadInventoryFromDB = async () => {
 
-const saveInventory = () => {
-    localStorage.setItem('autoNestCars', JSON.stringify(inventory));
-    renderInventory();
-}
+    try {
+        const response = await fetch('admin/get_cars.php');
+        const data = await response.json();
 
-const deleteInventory = (id) => {
-    inventory = inventory.filter(car => car.id !== id);
-    saveInventory();
-}
+        if (Array.isArray(data)) {
+            inventory = data;
+            const tbody = document.getElementById('admin-car-list');
+            if (!tbody) return;
 
-window.deleteInventory = deleteInventory;
+            tbody.innerHTML = data.map(car => `
+                <tr class="inventory-row">
+                    <td>#${car.id}</td>
+                    <td>${car.brand}</td>
+                    <td>${car.name}</td>
+                    <td>${car.bodyType}</td>
+                    <td class="price-cell">${Number(car.price).toLocaleString()} Birr</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" onclick="editInventory(${car.id})">
+                                <img src="assets/icons/pen.svg" alt="edit" class="action-img" />
+                            </button>
+                            <button class="btn-delete" onclick="deleteInventory(${car.id})"> 
+                                <img src="assets/icons/trash-can.svg" alt="delete" class="action-img" />
+                            </button>
+                        </div>
+                    </td>
+                </tr>`).join('');
+        }
+    } catch (error) {
+        console.error('Failed to load inventory:', error);
+    }
+};
 
-const editInventory = (id) => {
-    const car = inventory.find(c => c.id === id);
+document.addEventListener('DOMContentLoaded', loadInventoryFromDB);
+
+
+window.editInventory = (id) => {
+    const car = inventory.find(c => Number(c.id) === Number(id));
     if (!car) return;
 
-    document.getElementById('modalTitle').innerText = "Edit Vehicle";
+    document.getElementById('modalTitle').innerText = "Edit Vehicle Details";
 
     document.getElementById('edit-id').value = car.id;
     document.getElementById('brand').value = car.brand;
     document.getElementById('name').value = car.name;
     document.getElementById('price').value = car.price;
-    document.getElementById('fuelType').value = car.fuelType;
     document.getElementById('bodyType').value = car.bodyType;
-    document.getElementById('transmission').value = car.transmission;
-    document.getElementById('isUsed').checked = car.isUsed;
-    document.getElementById('isPopular').checked = car.isPopular;
-    document.getElementById('isLuxury').checked = car.isLuxury;
-    document.getElementById('features').value = car.features ? car.features.join(', ') : '';
+    document.getElementById('isUsed').checked = (car.isUsed == 1);
+    document.getElementById('features').value = car.features || '';
 
     document.getElementById('formModal').style.display = 'flex';
 };
 
-window.editInventory = editInventory;
 
-// Booking
-let bookings = [];
+window.deleteInventory = async (id) => {
+    if (!confirm('Are you sure you want to permanently delete this vehicle?')) return;
+    const formData = new FormData();
+    formData.append('id', id);
 
-document.addEventListener('DOMContentLoaded', () => {
-    const savedBookings = localStorage.getItem('carBookings');
-    if (savedBookings)
-        bookings = JSON.parse(savedBookings);
-    localStorage.setItem('carBookings', JSON.stringify(bookings));
-    renderBookings();
-});
+    try {
+        const response = await fetch('admin/delete_car.php', {
+            method: 'POST',
+            body: formData
+        });
 
-const renderBookings = () => {
-    const tbody = document.getElementById('admin-booking-list');
-    if (!tbody) return;
+        const result = await response.json();
 
-    tbody.innerHTML = bookings.map(book => {
-
-        const customer = book.fullName || book.customerName || "Unknown";
-        const vehicle = book.carName || "Unknown Car";
-        const phone = book.phone || "N/A";
-        const date = book.pickupDate || book.date || "N/A";
-
-        return `
-            <tr class="inventory-row">
-                <td>${customer}</td>
-                <td>${vehicle}</td>
-                <td>${phone}</td>
-                <td>${date}</td>
-                <td>
-                    <span class="status ${book.status.toLowerCase()}">
-                        ${book.status}
-                    </span>
-                </td>
-                <td>
-                    <div class="action-buttons">
-                        <button type="button" class="btn-confirm" onclick="updateStatus(${book.id}, 'Confirmed')">
-                            <img src="assets/icons/check.svg" alt="confirm" class="action-img" />
-                        </button>
-                        
-                        <button type="button" class="btn-cancel-status" onclick="updateStatus(${book.id}, 'Cancelled')">
-                            <img src="assets/icons/x-mark.svg" alt="cancel" class="action-img" />
-                        </button>
-
-                        <button type="button" class="btn-delete-perm" onclick="deleteBooking(${book.id})">
-                            <img src="assets/icons/trash-can.svg" alt="delete" class="action-img" />
-                        </button>
-                    </div>
-                </td>
-            </tr>`;
-    }).join('');
-};
-
-const saveBooking = () => {
-    localStorage.setItem('carBookings', JSON.stringify(bookings));
-    renderBookings();
-};
-
-const updateStatus = (id, newStatus) => {
-    const bookingIndex = bookings.findIndex(booking => Number(booking.id) === Number(id));
-    if (bookingIndex !== -1) {
-        bookings[bookingIndex].status = newStatus;
-        saveBooking();
+        if (result.status === 'success') {
+            loadInventoryFromDB();
+        } else {
+            alert('Error: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Delete Error:', error);
+        alert('Could not connect to the server.');
     }
 };
-
-const deleteBooking = (id) => {
-    bookings = bookings.filter(booking => Number(booking.id) !== Number(id));
-    saveBooking();
-};
-
-window.updateStatus = updateStatus;
-window.deleteBooking = deleteBooking;
-
-// Setting
-const photoUpload = document.getElementById('admin-photo-upload');
-const profilePreview = document.getElementById('profile-img-preview');
-
-photoUpload.addEventListener('change', () => {
-    const [file] = photoUpload.files;
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (img) => profilePreview.src = img.target.result;
-        reader.readAsDataURL(file);
-    }
-});
