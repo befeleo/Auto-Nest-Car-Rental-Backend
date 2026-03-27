@@ -1,14 +1,3 @@
-<?php
-// --- STEP 1: LOAD DATA AT THE TOP ---
-$jsonPath = './data/cars.json';
-$jsonData = file_get_contents($jsonPath);
-$cars = json_decode($jsonData, true);
-
-if ($cars === null) {
-  die("Error: Could not decode JSON.");
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -44,27 +33,14 @@ if ($cars === null) {
       <ul>
         <li><a href="index.html">Home</a></li>
         <li><a href="about-contact.html">About Us</a></li>
-        <li><a href="services.html">Car Service</a></li>
+        <li><a href="services.php">Car Service</a></li>
         <li><a href="about-contact.html#contact">Contact</a></li>
       </ul>
     </div>
   </nav>
 
   <main class="car-section">
-    <div id="car-list" class="car-grid">
-      <?php foreach ($cars as $car): ?>
-        <div class="car-card">
-          <img src="<?= htmlspecialchars($car['image']) ?>" alt="<?= htmlspecialchars($car['brand']) ?>">
-          <h3><?= htmlspecialchars($car['brand']) ?> <?= htmlspecialchars($car['name']) ?></h3>
-          <p><strong><?= number_format($car['price']) ?></strong> birr / day</p>
-          <p><?= htmlspecialchars($car['bodyType']) ?> • <?= htmlspecialchars($car['fuelType']) ?></p>
-
-          <a href="car-details.php?id=<?= $car['id'] ?>" class="toggle-btn">
-            View Details
-          </a>
-        </div>
-      <?php endforeach; ?>
-    </div>
+    <div id="car-list" class="car-grid"></div>
   </main>
 
   <footer>
