@@ -113,7 +113,11 @@ window.editInventory = (id) => {
     document.getElementById('name').value = car.name;
     document.getElementById('price').value = car.price;
     document.getElementById('bodyType').value = car.bodyType;
-    document.getElementById('isUsed').checked = (car.isUsed == 1);
+    document.getElementById('fuelType').value = car.fuelType;
+    document.getElementById('transmission').value = car.transmission;
+    document.getElementById('isUsed').checked = (parseInt(car.isUsed) === 1);
+    document.getElementById('isPopular').checked = (parseInt(car.isPopular) === 1);
+    document.getElementById('isLuxury').checked = (parseInt(car.isLuxury) === 1);
     document.getElementById('features').value = car.features || '';
 
     document.getElementById('formModal').style.display = 'flex';
