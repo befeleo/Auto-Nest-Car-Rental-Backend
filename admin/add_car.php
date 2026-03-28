@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-include './database/db_connect.php';
+include '../database/db_connect.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
