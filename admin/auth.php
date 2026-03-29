@@ -40,7 +40,8 @@ if ($action === 'login') {
         }
 
         $storedPassword = (string)$admin['password'];
-        $passwordMatches = password_verify($password, $storedPassword) || hash_equals($storedPassword, $password);
+        $passwordInfo = password_get_info($storedPassword);
+        $passwordMatches = $passwordInfo['algo'] !== null && password_verify($password, $storedPassword);
 
         if (!$passwordMatches) {
             echo json_encode(["status" => "error", "message" => "Invalid email or password"]);
