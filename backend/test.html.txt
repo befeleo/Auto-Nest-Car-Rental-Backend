@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Contact API</title>
+</head>
+<body>
+
+<h2>Test Contact Form</h2>
+
+<button onclick="sendData()">Send Test Data</button>
+
+<script>
+function sendData() {
+    fetch('http://localhost:5000/contact', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name: "Beti",
+            email: "beti@test.com",
+            message: "Hello from browser"
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Response: " + JSON.stringify(data));
+        console.log(data);
+    })
+    .catch(error => {
+        alert("Error: " + error);
+        console.error(error);
+    });
+}
+</script>
+
+</body>
+</html>
