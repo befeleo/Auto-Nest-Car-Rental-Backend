@@ -1,348 +1,299 @@
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>About & Contact | Auto-Nest Car Rental</title>
-    <link rel="stylesheet" href="css/common.css" />
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/about-contact.css" />
-    <link rel="stylesheet" href="css/responsive.css" />
-    <link rel="shortcut icon" href="assets/favicon/car.png" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-  </head>
-  <body>
-    <header class="hero about-contact-hero">
-      <nav class="nav-bar-home">
-        <a href="#" class="logo">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About & Contact | Auto-Nest Car Rental</title>
+  <link rel="stylesheet" href="css/common.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/about-contact.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="shortcut icon" href="assets/favicon/car.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+
+<body>
+  <header class="hero about-contact-hero">
+    <nav class="nav-bar-home">
+      <a href="#" class="logo">
+        <img src="assets/images/logo.png" alt="logo" />
+      </a>
+      <div class="nav-bar-links">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about-contact.html">About Us</a></li>
+          <li><a href="services.php">Car Service</a></li>
+          <li><a href="about-contact.html">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="hero-content">
+      <h1>About <span>&</span> Contact Us</h1>
+      <p>
+        Learn more about Auto-Nest and get in touch with our team. We're here
+        to make your car rental experience seamless.
+      </p>
+      <a href="#contact-form" class="hero-btn">Send Us a Message</a>
+    </div>
+  </header>
+
+  <main class="about-contact-container">
+    <section class="about-us-section">
+      <div class="card">
+        <h1>Our Story</h1>
+        <p>
+          Founded in 2025, Auto-Nest Car Rental emerged from a simple idea:
+          making car rental effortless, affordable, and reliable for everyone.
+          What started as a small local service has grown into a trusted name
+          in vehicle rentals.
+        </p>
+        <p>
+          We believe that every journey should start with confidence. That's
+          why we maintain our fleet to the highest standards and provide
+          transparent pricing with no hidden fees.
+        </p>
+      </div>
+
+      <div class="card photo-card">
+        <img
+          src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+          alt="Auto-Nest Car Rental Fleet" />
+      </div>
+
+      <div class="card photo-card">
+        <img
+          src="https://images.unsplash.com/photo-1486496572940-2bb2341fdbdf?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+          alt="Happy Customers" />
+      </div>
+
+      <div class="card">
+        <h1>Why Choose Us</h1>
+        <p>
+          <strong>✓ 24/7 Customer Support</strong> - We're always here when
+          you need us
+        </p>
+        <p>
+          <strong>✓ Well-Maintained Fleet</strong> - Regular safety checks and
+          maintenance
+        </p>
+        <p><strong>✓ No Hidden Fees</strong> - Transparent pricing always</p>
+        <p>
+          <strong>✓ Flexible Rentals</strong> - Daily, weekly, and monthly
+          options
+        </p>
+        <p>
+          <strong>✓ Easy Booking</strong> - Simple online reservation system
+        </p>
+        <p>
+          <strong>✓ Multiple Locations</strong> - Pick up and drop off at
+          various spots
+        </p>
+      </div>
+    </section>
+
+    <section class="contact-section" id="contact">
+      <div class="car-section">
+        <h2>Get In Touch</h2>
+        <div class="contact-container">
+          <div class="contact-form-container">
+            <h3>Send Us a Message</h3>
+            <form id="contactForm" class="contact-form" novalidate>
+              <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" placeholder="Enter your full name" />
+                <span class="error-message" id="nameError"></span>
+              </div>
+              <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" />
+                <span class="error-message" id="emailError"></span>
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" />
+                <span class="error-message" id="phoneError"></span>
+              </div>
+              <div class="form-group">
+                <label for="subject">Subject *</label>
+                <select id="subject" name="subject">
+                  <option value="">Select a subject</option>
+                  <option value="general">General Inquiry</option>
+                  <option value="booking">Booking Assistance</option>
+                  <option value="support">Technical Support</option>
+                  <option value="feedback">Feedback/Suggestions</option>
+                  <option value="other">Other</option>
+                </select>
+                <span class="error-message" id="subjectError"></span>
+              </div>
+              <div class="form-group">
+                <label for="message">Message *</label>
+                <textarea id="message" name="message" rows="5" placeholder="How can we help you?"></textarea>
+                <span class="error-message" id="messageError"></span>
+              </div>
+              <div class="form-group checkbox-group">
+                <input type="checkbox" id="newsletter" name="newsletter" />
+                <label for="newsletter">Subscribe to our newsletter</label>
+              </div>
+              <button type="submit" class="hero-btn">
+                <i class="fas fa-paper-plane"></i> Send Message
+              </button>
+              <div id="formSuccess" class="success-message"></div>
+            </form>
+          </div>
+
+          <div class="contact-information">
+            <h3>Contact Information</h3>
+
+            <!-- ONLY THIS PHONE SECTION IS CHANGED TO ETHIOPIAN -->
+            <div class="info-item">
+              <i class="fas fa-phone"></i>
+              <div>
+                <h4>Phone Number</h4>
+                <p>+251 912 345 678 (Landline)</p>
+                <p>+251 912 345 679 (Mobile)</p>
+                <p id="time-open">Mon-Sun: 6:00 AM - 10:00 PM (EAT)</p>
+              </div>
+            </div>
+            <!-- END OF CHANGED SECTION -->
+
+            <div class="info-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <div>
+                <h4>Our Location</h4>
+                <p>Haile Gebrselassie St. Addis Ababa, Ethiopia</p>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <i class="fas fa-envelope"></i>
+              <div>
+                <h4>Email Address</h4>
+                <p>info@autonest.com</p>
+                <p>support@autonest.com</p>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <i class="fas fa-clock"></i>
+              <div>
+                <h4>Business Hours</h4>
+                <p>Monday - Friday: 8:00 AM - 8:00 PM</p>
+                <p>Saturday - Sunday: 9:00 AM - 6:00 PM</p>
+              </div>
+            </div>
+
+            <div class="social-links">
+              <h4>Follow Us</h4>
+              <div class="social-icons">
+                <a href="https://facebook.com/autonest">
+                  <i class="fab fa-facebook-f" title="facebook"></i>
+                </a>
+                <a href="https://x.com/autonest">
+                  <i class="fab fa-twitter" title="x"></i></a>
+                <a href="https://instagram.com/autonest">
+                  <i class="fab fa-instagram" title="instagram"></i></a>
+                <a href="https://linkedin.com/company/autonest">
+                  <i class="fab fa-linkedin-in" title="linkedin"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-container footer-top">
+      <div class="footer-info">
+        <div class="footer-logo-container">
           <img src="assets/images/logo.png" alt="logo" />
-        </a>
-        <div class="nav-bar-links">
-          <ul>
+          <span class="logo-text">Auto Nest</span>
+        </div>
+        <p class="tagline">
+          Your trusted partner for car rentals in Ethiopia
+        </p>
+        <div class="social-links">
+          <a href="https://t.me/autonest" class="social-link" target="_blank" rel="noopener"><img
+              src="assets/icons/telegram-logo.svg" alt="Telegram" />
+          </a>
+          <a href="https://facebook.com/autonest" class="social-link" target="_blank" rel="noopener"><img
+              src="assets/icons/facebook-logo.svg" alt="Facebook" />
+          </a>
+          <a href="https://linkedin.com/company/autonest" class="social-link" target="_blank" rel="noopener"><img
+              src="assets/icons/linkedin-logo.svg" alt="LinkedIn" />
+          </a>
+          <a href="https://linkedin.com/company/autonest" class="social-link" target="_blank" rel="noopener"><img
+              src="assets/icons/x-logo.svg" alt="X (Twitter)" />
+          </a>
+          <a href="https://instagram.com/autonest" class="social-link" target="_blank" rel="noopener"><img
+              src="assets/icons/instagram-logo.svg" alt="Instagram" />
+          </a>
+          <a href="https://tiktok.com/@autonest" class="social-link" target="_blank" rel="noopener"><img
+              src="assets/icons/tiktok-logo.svg" alt="Tiktok" />
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <div class="link-column">
+          <h4 class="column-title">PAGES</h4>
+          <ul class="link-list">
             <li><a href="index.html">Home</a></li>
             <li><a href="about-contact.html">About Us</a></li>
             <li><a href="services.html">Car Service</a></li>
             <li><a href="about-contact.html">Contact</a></li>
           </ul>
         </div>
-      </nav>
-      <div class="hero-content">
-        <h1>About <span>&</span> Contact Us</h1>
-        <p>
-          Learn more about Auto-Nest and get in touch with our team. We're here
-          to make your car rental experience seamless.
+
+        <div class="link-column">
+          <h4 class="column-title">SUPPORT</h4>
+          <ul class="link-list">
+            <li><a href="#help">Help Center</a></li>
+            <li><a href="#terms">Terms of Service</a></li>
+            <li><a href="#privacy">Privacy Policy</a></li>
+            <li><a href="#cookies">Cookie Policy</a></li>
+          </ul>
+        </div>
+
+        <div class="link-column">
+          <h4 class="column-title">CONTACT US</h4>
+          <div class="contact-info">
+            <div class="contact-link">
+              <img src="assets/icons//phone.svg" alt="Phone" />
+              <a href="tel:+251912345678">+251 912 345 678 </a>
+              <p>|</p>
+              <a href="tel:+251912345678">+251 912 345 678</a>
+            </div>
+            <div class="contact-link">
+              <img src="assets/icons/envelope-simple.svg" alt="Email" />
+              <a href="autonestrental@gmail.com">
+                support@autonestrental.com
+              </a>
+            </div>
+            <div class="contact-link">
+              <img src="assets/icons/map-pin.svg" alt="Telegram" />
+              <span>Haile Gebrselassie St. Addis Ababa, Ethiopia</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Bottom Section -->
+    <div class="footer-bottom">
+      <div class="footer-info">
+        <p class="footer-description">
+          <span>AutoNest</span> Licensed car rental service provider operating
+          in Ethiopia.
         </p>
-        <a href="#contact-form" class="hero-btn">Send Us a Message</a>
+        <p class="footer-credit">Made with 🤍 in Ethiopia</p>
       </div>
-    </header>
-
-    <main class="about-contact-container">
-      <section class="about-us-section">
-        <div class="card">
-          <h1>Our Story</h1>
-          <p>
-            Founded in 2025, Auto-Nest Car Rental emerged from a simple idea:
-            making car rental effortless, affordable, and reliable for everyone.
-            What started as a small local service has grown into a trusted name
-            in vehicle rentals.
-          </p>
-          <p>
-            We believe that every journey should start with confidence. That's
-            why we maintain our fleet to the highest standards and provide
-            transparent pricing with no hidden fees.
-          </p>
-        </div>
-
-        <div class="card photo-card">
-          <img
-            src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-            alt="Auto-Nest Car Rental Fleet"
-          />
-        </div>
-
-        <div class="card photo-card">
-          <img
-            src="https://images.unsplash.com/photo-1486496572940-2bb2341fdbdf?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-            alt="Happy Customers"
-          />
-        </div>
-
-        <div class="card">
-          <h1>Why Choose Us</h1>
-          <p>
-            <strong>✓ 24/7 Customer Support</strong> - We're always here when
-            you need us
-          </p>
-          <p>
-            <strong>✓ Well-Maintained Fleet</strong> - Regular safety checks and
-            maintenance
-          </p>
-          <p><strong>✓ No Hidden Fees</strong> - Transparent pricing always</p>
-          <p>
-            <strong>✓ Flexible Rentals</strong> - Daily, weekly, and monthly
-            options
-          </p>
-          <p>
-            <strong>✓ Easy Booking</strong> - Simple online reservation system
-          </p>
-          <p>
-            <strong>✓ Multiple Locations</strong> - Pick up and drop off at
-            various spots
-          </p>
-        </div>
-      </section>
-
-      <section class="contact-section" id="contact">
-        <div class="car-section">
-          <h2>Get In Touch</h2>
-          <div class="contact-container">
-            <div class="contact-form-container">
-              <h3>Send Us a Message</h3>
-              <form id="contactForm" class="contact-form" novalidate>
-                <div class="form-group">
-                  <label for="name">Full Name *</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    placeholder="Enter your full name"
-                  />
-                  <span class="error-message" id="nameError"></span>
-                </div>
-                <div class="form-group">
-                  <label for="email">Email Address *</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="Enter your email"
-                  />
-                  <span class="error-message" id="emailError"></span>
-                </div>
-                <div class="form-group">
-                  <label for="phone">Phone Number</label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    placeholder="Enter your phone number"
-                  />
-                  <span class="error-message" id="phoneError"></span>
-                </div>
-                <div class="form-group">
-                  <label for="subject">Subject *</label>
-                  <select id="subject" name="subject">
-                    <option value="">Select a subject</option>
-                    <option value="general">General Inquiry</option>
-                    <option value="booking">Booking Assistance</option>
-                    <option value="support">Technical Support</option>
-                    <option value="feedback">Feedback/Suggestions</option>
-                    <option value="other">Other</option>
-                  </select>
-                  <span class="error-message" id="subjectError"></span>
-                </div>
-                <div class="form-group">
-                  <label for="message">Message *</label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows="5"
-                    placeholder="How can we help you?"
-                  ></textarea>
-                  <span class="error-message" id="messageError"></span>
-                </div>
-                <div class="form-group checkbox-group">
-                  <input type="checkbox" id="newsletter" name="newsletter" />
-                  <label for="newsletter">Subscribe to our newsletter</label>
-                </div>
-                <button type="submit" class="hero-btn">
-                  <i class="fas fa-paper-plane"></i> Send Message
-                </button>
-                <div id="formSuccess" class="success-message"></div>
-              </form>
-            </div>
-
-            <div class="contact-information">
-              <h3>Contact Information</h3>
-
-              <!-- ONLY THIS PHONE SECTION IS CHANGED TO ETHIOPIAN -->
-              <div class="info-item">
-                <i class="fas fa-phone"></i>
-                <div>
-                  <h4>Phone Number</h4>
-                  <p>+251 912 345 678 (Landline)</p>
-                  <p>+251 912 345 679 (Mobile)</p>
-                  <p id="time-open">Mon-Sun: 6:00 AM - 10:00 PM (EAT)</p>
-                </div>
-              </div>
-              <!-- END OF CHANGED SECTION -->
-
-              <div class="info-item">
-                <i class="fas fa-map-marker-alt"></i>
-                <div>
-                  <h4>Our Location</h4>
-                  <p>Haile Gebrselassie St. Addis Ababa, Ethiopia</p>
-                </div>
-              </div>
-
-              <div class="info-item">
-                <i class="fas fa-envelope"></i>
-                <div>
-                  <h4>Email Address</h4>
-                  <p>info@autonest.com</p>
-                  <p>support@autonest.com</p>
-                </div>
-              </div>
-
-              <div class="info-item">
-                <i class="fas fa-clock"></i>
-                <div>
-                  <h4>Business Hours</h4>
-                  <p>Monday - Friday: 8:00 AM - 8:00 PM</p>
-                  <p>Saturday - Sunday: 9:00 AM - 6:00 PM</p>
-                </div>
-              </div>
-
-              <div class="social-links">
-                <h4>Follow Us</h4>
-                <div class="social-icons">
-                  <a href="https://facebook.com/autonest">
-                    <i class="fab fa-facebook-f" title="facebook"></i>
-                  </a>
-                  <a href="https://x.com/autonest">
-                    <i class="fab fa-twitter" title="x"></i
-                  ></a>
-                  <a href="https://instagram.com/autonest">
-                    <i class="fab fa-instagram" title="instagram"></i
-                  ></a>
-                  <a href="https://linkedin.com/company/autonest">
-                    <i class="fab fa-linkedin-in" title="linkedin"></i
-                  ></a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      <div class="footer-container footer-top">
-        <div class="footer-info">
-          <div class="footer-logo-container">
-            <img src="assets/images/logo.png" alt="logo" />
-            <span class="logo-text">Auto Nest</span>
-          </div>
-          <p class="tagline">
-            Your trusted partner for car rentals in Ethiopia
-          </p>
-          <div class="social-links">
-            <a
-              href="https://t.me/autonest"
-              class="social-link"
-              target="_blank"
-              rel="noopener"
-              ><img src="assets/icons/telegram-logo.svg" alt="Telegram" />
-            </a>
-            <a
-              href="https://facebook.com/autonest"
-              class="social-link"
-              target="_blank"
-              rel="noopener"
-              ><img src="assets/icons/facebook-logo.svg" alt="Facebook" />
-            </a>
-            <a
-              href="https://linkedin.com/company/autonest"
-              class="social-link"
-              target="_blank"
-              rel="noopener"
-              ><img src="assets/icons/linkedin-logo.svg" alt="LinkedIn" />
-            </a>
-            <a
-              href="https://linkedin.com/company/autonest"
-              class="social-link"
-              target="_blank"
-              rel="noopener"
-              ><img src="assets/icons/x-logo.svg" alt="X (Twitter)" />
-            </a>
-            <a
-              href="https://instagram.com/autonest"
-              class="social-link"
-              target="_blank"
-              rel="noopener"
-              ><img src="assets/icons/instagram-logo.svg" alt="Instagram" />
-            </a>
-            <a
-              href="https://tiktok.com/@autonest"
-              class="social-link"
-              target="_blank"
-              rel="noopener"
-              ><img src="assets/icons/tiktok-logo.svg" alt="Tiktok" />
-            </a>
-          </div>
-        </div>
-
-        <div class="footer-links">
-          <div class="link-column">
-            <h4 class="column-title">PAGES</h4>
-            <ul class="link-list">
-              <li><a href="index.html">Home</a></li>
-              <li><a href="about-contact.html">About Us</a></li>
-              <li><a href="services.html">Car Service</a></li>
-              <li><a href="about-contact.html">Contact</a></li>
-            </ul>
-          </div>
-
-          <div class="link-column">
-            <h4 class="column-title">SUPPORT</h4>
-            <ul class="link-list">
-              <li><a href="#help">Help Center</a></li>
-              <li><a href="#terms">Terms of Service</a></li>
-              <li><a href="#privacy">Privacy Policy</a></li>
-              <li><a href="#cookies">Cookie Policy</a></li>
-            </ul>
-          </div>
-
-          <div class="link-column">
-            <h4 class="column-title">CONTACT US</h4>
-            <div class="contact-info">
-              <div class="contact-link">
-                <img src="assets/icons//phone.svg" alt="Phone" />
-                <a href="tel:+251912345678">+251 912 345 678 </a>
-                <p>|</p>
-                <a href="tel:+251912345678">+251 912 345 678</a>
-              </div>
-              <div class="contact-link">
-                <img src="assets/icons/envelope-simple.svg" alt="Email" />
-                <a href="autonestrental@gmail.com">
-                  support@autonestrental.com
-                </a>
-              </div>
-              <div class="contact-link">
-                <img src="assets/icons/map-pin.svg" alt="Telegram" />
-                <span>Haile Gebrselassie St. Addis Ababa, Ethiopia</span>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="footer-copyright">
+        <p>&copy; 2025 AutoNest. All rights reserved.</p>
       </div>
-      <!-- Bottom Section -->
-      <div class="footer-bottom">
-        <div class="footer-info">
-          <p class="footer-description">
-            <span>AutoNest</span> Licensed car rental service provider operating
-            in Ethiopia.
-          </p>
-          <p class="footer-credit">Made with 🤍 in Ethiopia</p>
-        </div>
-        <div class="footer-copyright">
-          <p>&copy; 2025 AutoNest. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
+    </div>
+  </footer>
 
-    <script src="js/form-validation.js"></script>
-  </body>
+  <script src="js/form-validation.js"></script>
+</body>
+
 </html>
