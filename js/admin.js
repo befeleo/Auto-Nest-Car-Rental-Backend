@@ -55,15 +55,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.status === 'success') {
-                alert('Success: ' + result.message);
                 form.reset();
                 await loadInventoryFromDB();
             } else {
-                alert('Database Error: ' + result.message);
             }
         } catch (error) {
             console.error('Connection Error:', error);
-            alert('Could not connect to the server. Check if XAMPP is running.');
         }
 
         modal.style.display = 'none';
@@ -141,7 +138,6 @@ window.editInventory = (id) => {
 
 
 window.deleteInventory = async (id) => {
-    if (!confirm('Are you sure you want to permanently delete this vehicle?')) return;
     const formData = new FormData();
     formData.append('id', id);
 
@@ -156,10 +152,8 @@ window.deleteInventory = async (id) => {
         if (result.status === 'success') {
             loadInventoryFromDB();
         } else {
-            alert('Error: ' + result.message);
         }
     } catch (error) {
         console.error('Delete Error:', error);
-        alert('Could not connect to the server.');
     }
 };
