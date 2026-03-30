@@ -241,7 +241,10 @@
 
                 <div class="form-group">
                   <label>Fuel Type <span class="required">*</span></label>
-                  <select title="fuelype" id="fuelType" name="fuelType">
+                  <select title="fuelype" id="fuelType" name="fuelType" required>
+                     <option value="" disabled selected>
+                        Select Fuel Type
+                      </option>
                     <option value="Petrol">Petrol</option>
                     <option value="Diesel">Diesel</option>
                     <option value="Electric">Electric</option>
@@ -250,7 +253,10 @@
 
                 <div class="form-group">
                   <label>Body Type <span class="required">*</span></label>
-                  <select title="bodyType" id="bodyType" name="bodyType">
+                  <select title="bodyType" id="bodyType" name="bodyType" required>
+                      <option value="" disabled selected>
+                        Select Body Type
+                      </option>
                     <option value="SUV">SUV</option>
                     <option value="Sedan">Sedan</option>
                     <option value="Pickup">Pickup</option>
@@ -260,7 +266,10 @@
 
                 <div class="form-group">
                   <label>Transmission <span class="required">*</span></label>
-                  <select title="transmission" id="transmission" name="transmission">
+                      <option value="" disabled selected>
+                        Select Transmission
+                      </option>
+                  <select title="transmission" id="transmission" name="transmission" required>
                     <option value="Automatic">Automatic</option>
                     <option value="Manual">Manual</option>
                   </select>
