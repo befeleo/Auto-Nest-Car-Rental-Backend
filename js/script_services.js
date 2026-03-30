@@ -19,7 +19,7 @@ async function loadCars() {
     try {
         console.log('Attempting to load cars from database via get_cars.php...');
 
-        const response = await fetch('get_cars.php');
+        const response = await fetch('admin/get_cars.php');
 
         if (!response.ok) {
             throw new Error(`Server error: ${response.status} ${response.statusText}`);
