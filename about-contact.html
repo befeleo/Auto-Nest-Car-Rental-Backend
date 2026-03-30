@@ -22,7 +22,7 @@
         <ul>
           <li><a href="index.html">Home</a></li>
           <li><a href="about-contact.html">About Us</a></li>
-          <li><a href="services.php">Car Service</a></li>
+          <li><a href="services.html">Car Service</a></li>
           <li><a href="about-contact.html">Contact</a></li>
         </ul>
       </div>
