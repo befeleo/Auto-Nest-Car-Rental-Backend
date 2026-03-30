@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        localStorage.setItem('activeSection', sectionName);
+        sessionStorage.setItem('activeSection', sectionName);
     };
 
     navLinks.forEach(link => {
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    const savedSection = localStorage.getItem('activeSection');
+    const savedSection = sessionStorage.getItem('activeSection');
     if (savedSection) {
         switchSection(savedSection);
     } else {
