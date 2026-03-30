@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.status === 'success') {
                 alert('Success: ' + result.message);
                 form.reset();
+                await loadInventoryFromDB();
             } else {
                 alert('Database Error: ' + result.message);
             }
