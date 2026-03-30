@@ -2,22 +2,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelectorAll('.nav-link');
     const allSections = document.querySelectorAll('.content-section');
 
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            const sectionName = link.getAttribute('data-section');
-            const targetSection = document.getElementById(`${sectionName}-section`);
+    const switchSection = (sectionName) => {
+        const targetSection = document.getElementById(`${sectionName}-section`);
+        if (!targetSection) return;
 
-            if (targetSection) {
-                e.preventDefault();
+        allSections.forEach(s => s.classList.remove('active-section'));
+        targetSection.classList.add('active-section');
 
-                allSections.forEach(section => section.classList.remove('active-section'));
-                targetSection.classList.add('active-section');
-
-                navLinks.forEach(item => item.classList.remove('active'));
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('data-section') === sectionName) {
                 link.classList.add('active');
             }
         });
+
+        localStorage.setItem('activeSection', sectionName);
+    };
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const sectionName = link.getAttribute('data-section');
+            switchSection(sectionName);
+        });
     });
+
+    const savedSection = localStorage.getItem('activeSection');
+    if (savedSection) {
+        switchSection(savedSection);
+    } else {
+        switchSection('dashboard');
+    }
 });
 
 // Inventory
