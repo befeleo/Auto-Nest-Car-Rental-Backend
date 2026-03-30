@@ -17,17 +17,22 @@ async function loadCars() {
     showLoading();
 
     try {
-        console.log('Attempting to load cars.json...');
+        console.log('Attempting to load cars from database via get_cars.php...');
 
-        // Try different paths if needed
-        const response = await fetch('./data/cars.json');
+        const response = await fetch('get_cars.php');
 
         if (!response.ok) {
-            throw new Error(`Failed to load JSON: ${response.status} ${response.statusText}`);
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
         }
 
-        cars = await response.json();
-        console.log(`Successfully loaded ${cars.length} cars`, cars);
+        const data = await response.json();
+
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        cars = data;
+        console.log(`Successfully loaded ${cars.length} cars from database`, cars);
 
         const urlParams = new URLSearchParams(window.location.search);
         const carQuery = urlParams.get('car');
@@ -36,13 +41,13 @@ async function loadCars() {
             console.log(`Filtering by brand from URL: ${carQuery}`);
             const filteredCars = filterCars(carQuery);
             displayCars(filteredCars);
-
         } else {
             displayCars(cars);
         }
+
     } catch (error) {
-        console.error('Error loading cars:', error);
-        showError(`Failed to load cars: ${error.message}<br>Check browser console for details.`);
+        console.error('Error loading database cars:', error);
+        showError(`Failed to load: ${error.message}<br>Check browser console/XAMPP for details.`);
     }
 }
 

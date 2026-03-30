@@ -4,23 +4,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Car Details - Auto Nest Car Rental</title>
+  <title>Car Services</title>
   <link rel="stylesheet" href="css/common.css" />
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/car-details.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
   <link rel="shortcut icon" href="assets/favicon/car.png" />
 </head>
 
 <body>
-  <!-- Header with Navigation -->
   <nav class="nav-bar-services">
     <a href="index.html" class="logo">
-      <img src="assets/images/logo.png" alt="Auto Nest Logo" />
+      <img src="assets/images/logo.png" alt="logo" />
     </a>
     <div class="nav-bar-search">
-      <img src="assets/icons/search.svg" alt="search" title="search" width="24" height="24" />
-      <input id="search-input" class="search" type="text" placeholder="Search" />
+      <img
+        src="assets/icons/search.svg"
+        alt="search"
+        title="search"
+        width="24"
+        height="24" />
+      <input
+        id="search-input"
+        class="search"
+        type="text"
+        placeholder="Search" />
     </div>
     <div class="nav-bar-links">
       <ul>
@@ -32,12 +39,10 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
-  <main class="car-details-container">
-    <!-- Content will be loaded dynamically by JavaScript -->
+  <main class="car-section">
+    <div id="car-list" class="car-grid"></div>
   </main>
 
-  <!-- Footer -->
   <footer>
     <div class="footer-container footer-top">
       <div class="footer-info">
@@ -49,23 +54,41 @@
           Your trusted partner for car rentals in Ethiopia
         </p>
         <div class="social-links">
-          <a href="https://t.me/autonest" class="social-link" target="_blank" rel="noopener">
-            <img src="assets/icons/telegram-logo.svg" alt="Telegram" />
+          <a
+            href="https://t.me/autonest"
+            class="social-link"
+            target="_blank"
+            rel="noopener"><img src="assets/icons/telegram-logo.svg" alt="Telegram" />
           </a>
-          <a href="https://facebook.com/autonest" class="social-link" target="_blank" rel="noopener">
-            <img src="assets/icons/facebook-logo.svg" alt="Facebook" />
+          <a
+            href="https://facebook.com/autonest"
+            class="social-link"
+            target="_blank"
+            rel="noopener"><img src="assets/icons/facebook-logo.svg" alt="Facebook" />
           </a>
-          <a href="https://linkedin.com/company/autonest" class="social-link" target="_blank" rel="noopener">
-            <img src="assets/icons/linkedin-logo.svg" alt="LinkedIn" />
+          <a
+            href="https://linkedin.com/company/autonest"
+            class="social-link"
+            target="_blank"
+            rel="noopener"><img src="assets/icons/linkedin-logo.svg" alt="LinkedIn" />
           </a>
-          <a href="https://linkedin.com/company/autonest" class="social-link" target="_blank" rel="noopener">
-            <img src="assets/icons/x-logo.svg" alt="X (Twitter)" />
+          <a
+            href="https://linkedin.com/company/autonest"
+            class="social-link"
+            target="_blank"
+            rel="noopener"><img src="assets/icons/x-logo.svg" alt="X (Twitter)" />
           </a>
-          <a href="https://instagram.com/autonest" class="social-link" target="_blank" rel="noopener">
-            <img src="assets/icons/instagram-logo.svg" alt="Instagram" />
+          <a
+            href="https://instagram.com/autonest"
+            class="social-link"
+            target="_blank"
+            rel="noopener"><img src="assets/icons/instagram-logo.svg" alt="Instagram" />
           </a>
-          <a href="https://tiktok.com/@autonest" class="social-link" target="_blank" rel="noopener">
-            <img src="assets/icons/tiktok-logo.svg" alt="Tiktok" />
+          <a
+            href="https://tiktok.com/@autonest"
+            class="social-link"
+            target="_blank"
+            rel="noopener"><img src="assets/icons/tiktok-logo.svg" alt="Tiktok" />
           </a>
         </div>
       </div>
@@ -78,7 +101,6 @@
             <li><a href="about-contact.html">About Us</a></li>
             <li><a href="services.html">Car Service</a></li>
             <li><a href="about-contact.html">Contact</a></li>
-            <li><a href="car-details.html?id=1">Car Details</a></li>
           </ul>
         </div>
 
@@ -97,18 +119,18 @@
           <div class="contact-info">
             <div class="contact-link">
               <img src="assets/icons//phone.svg" alt="Phone" />
-              <a href="tel:+251912345678">+251 912 345 678</a>
+              <a href="tel:+251912345678">+251 912 345 678 </a>
               <p>|</p>
               <a href="tel:+251912345678">+251 912 345 678</a>
             </div>
             <div class="contact-link">
               <img src="assets/icons/envelope-simple.svg" alt="Email" />
-              <a href="mailto:support@autonestrental.com">
+              <a href="autonestrental@gmail.com">
                 support@autonestrental.com
               </a>
             </div>
             <div class="contact-link">
-              <img src="assets/icons/map-pin.svg" alt="Location" />
+              <img src="assets/icons/map-pin.svg" alt="Telegram" />
               <span>Haile Gebrselassie St. Addis Ababa, Ethiopia</span>
             </div>
           </div>
@@ -130,7 +152,7 @@
     </div>
   </footer>
 
-  <script src="js/car-details.js"></script>
+  <script src="js/script_services.js"></script>
 </body>
 
 </html>
