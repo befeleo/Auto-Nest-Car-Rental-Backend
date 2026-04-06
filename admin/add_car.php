@@ -16,45 +16,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $isPopular = isset($_POST['isPopular']) ? 1 : 0;
         $isLuxury = isset($_POST['isLuxury']) ? 1 : 0;
         $features = $_POST['features'] ?? '';
+        $imagePath = 'assets/images/cars/placeholder.png';
 
-        $uploadDir = '../assets/images/cars/';
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+        if (isset($_FILES['car_image']) && $_FILES['car_image']['error'] === 0) {
+            $uploadDir = '../assets/images/cars/';
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-        function uploadCarImage($fileKey, $suffix, $uploadDir)
-        {
-            if (isset($_FILES[$fileKey]) && $_FILES[$fileKey]['error'] === 0) {
-                $originalName = pathinfo($_FILES[$fileKey]['name'], PATHINFO_FILENAME);
-                $extension = pathinfo($_FILES[$fileKey]['name'], PATHINFO_EXTENSION);
+            $fileExtension = pathinfo($_FILES['car_image']['name'], PATHINFO_EXTENSION);
+            $newFileName = time() . '_' . bin2hex(random_bytes(4)) . '.' . $fileExtension;
+            $targetFilePath = $uploadDir . $newFileName;
 
-                $finalName = $originalName . '_' . $suffix . '.' . $extension;
-                $targetPath = $uploadDir . $finalName;
-
-                if (move_uploaded_file($_FILES[$fileKey]['tmp_name'], $targetPath)) {
-                    return 'assets/images/cars/' . $finalName;
-                }
+            if (move_uploaded_file($_FILES['car_image']['tmp_name'], $targetFilePath)) {
+                $imagePath = 'assets/images/cars/' . $newFileName;
             }
-            return null;
         }
-
-        $pathMain = uploadCarImage('car_image_main', 'main', $uploadDir);
-        $pathSide = uploadCarImage('car_image_side', 'side', $uploadDir);
-        $pathDash = uploadCarImage('car_image_dashboard', 'dashboard', $uploadDir);
 
         if ($id) {
             $sql = "UPDATE cars SET brand=?, name=?, price=?, bodyType=?, fuelType=?, transmission=?, isUsed=?, isPopular=?, isLuxury=?, features=?";
             $params = [$brand, $name, $price, $bodyType, $fuelType, $transmission, $isUsed, $isPopular, $isLuxury, $features];
 
-            if ($pathMain) {
+            if (isset($_FILES['car_image']) && $_FILES['car_image']['error'] === 0) {
                 $sql .= ", image_path=?";
-                $params[] = $pathMain;
-            }
-            if ($pathSide) {
-                $sql .= ", image_side=?";
-                $params[] = $pathSide;
-            }
-            if ($pathDash) {
-                $sql .= ", image_dashboard=?";
-                $params[] = $pathDash;
+                $params[] = $imagePath;
             }
 
             $sql .= " WHERE id=?";
@@ -62,26 +45,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute($params);
-            $msg = "Vehicle updated!";
+            $msg = "Vehicle updated successfully!";
         } else {
-            $sql = "INSERT INTO cars (brand, name, price, bodyType, fuelType, transmission, isUsed, isPopular, isLuxury, features, image_path, image_side, image_dashboard) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO cars (brand, name, price, bodyType, fuelType, transmission, isUsed, isPopular, isLuxury, features, image_path) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                $brand,
-                $name,
-                $price,
-                $bodyType,
-                $fuelType,
-                $transmission,
-                $isUsed,
-                $isPopular,
-                $isLuxury,
-                $features,
-                $pathMain ?? 'assets/images/cars/placeholder.png',
-                $pathSide,
-                $pathDash
-            ]);
+            $stmt->execute([$brand, $name, $price, $bodyType, $fuelType, $transmission, $isUsed, $isPopular, $isLuxury, $features, $imagePath]);
             $msg = "New vehicle added!";
         }
 
