@@ -16,7 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $isPopular = isset($_POST['isPopular']) ? 1 : 0;
         $isLuxury = isset($_POST['isLuxury']) ? 1 : 0;
         $features = $_POST['features'] ?? '';
-
         $uploadDir = '../assets/images/cars/';
         if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
