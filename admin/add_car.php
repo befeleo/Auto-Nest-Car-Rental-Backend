@@ -56,7 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $sql .= ", image_dashboard=?";
                 $params[] = $pathDash;
             }
-
             $sql .= " WHERE id=?";
             $params[] = $id;
 
@@ -89,4 +88,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Exception $e) {
         echo json_encode(["status" => "error", "message" => $e->getMessage()]);
     }
-}
+}                                                                      

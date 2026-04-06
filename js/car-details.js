@@ -1,977 +1,548 @@
-// car-details.js
-document.addEventListener('DOMContentLoaded', async function() {
-    // Get car ID from URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const carId = urlParams.get('id');
-    
-    if (!carId) {
-        window.location.href = 'services.html';
-        return;
+(() => {
+  'use strict';
+
+  const DB_CARS_ENDPOINT = 'admin/get_cars.php';
+  const FALLBACK_IMAGE = 'assets/images/logo.png';
+  window.CAR_DETAILS_ENDPOINT = DB_CARS_ENDPOINT;
+
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $id = (id) => document.getElementById(id);
+
+  const state = {
+    loading: $id('page-loading'),
+    error: $id('page-error'),
+    content: $id('page-content'),
+    errorTitle: $id('error-title'),
+    errorMsg: $id('error-message'),
+  };
+  if (!state.loading || !state.error || !state.content) return;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    console.info('[car-details] loading from', DB_CARS_ENDPOINT);
+    main().catch((e) => (console.error(e), showError('Error', 'Failed to load car.')));
+  });
+
+  async function main() {
+    const carId = new URLSearchParams(location.search).get('id');
+    if (!carId) return (location.href = 'services.html');
+    showLoading();
+
+    const cars = await getCars();
+    const raw = cars.find((c) => String(c.id) === String(carId));
+    if (!raw) return showError('Car Not Found', 'The requested car could not be found.');
+
+    const car = norm(raw);
+    window.currentCar = car;
+    render(car);
+    renderRelated(cars, raw);
+    initBooking();
+    showContent();
+  }
+
+  async function getCars() {
+    const res = await fetch(DB_CARS_ENDPOINT, { headers: { Accept: 'application/json' } });
+    if (!res.ok) throw new Error(`Failed to load cars (${res.status})`);
+    const data = await res.json();
+    if (data && typeof data === 'object' && data.error) throw new Error(data.error);
+    if (!Array.isArray(data)) throw new Error('Invalid cars response');
+    return data;
+  }
+
+  function norm(raw) {
+    return {
+      _raw: raw,
+      id: toInt(raw.id),
+      brand: raw.brand ?? '',
+      name: raw.name ?? '',
+      price: toNumber(raw.price) ?? 0,
+      isUsed: toBool(raw.isUsed),
+      isPopular: toBool(raw.isPopular),
+      isLuxury: toBool(raw.isLuxury),
+      available: raw.available == null ? null : toBool(raw.available),
+      features: parseFeatures(raw.features),
+      images: collectImages(raw),
+    };
+  }
+
+  function render(car) {
+    const title = `${car.brand} ${car.name}`.trim() || 'Car';
+
+    renderBreadcrumb(title);
+    renderBadges(car);
+
+    $id('daily-rate').textContent = formatNumber(car.price);
+    $id('weekly-rate').textContent = formatNumber(car.price * 7 * 0.85);
+    $id('display-daily-rate').textContent = formatNumber(car.price);
+
+    const titleEl = $id('car-title');
+    titleEl.textContent = title;
+    if (car._raw.year != null && car._raw.year !== '') {
+      const yearEl = document.createElement('span');
+      yearEl.className = 'car-brand';
+      yearEl.textContent = String(car._raw.year);
+      titleEl.append(' ');
+      titleEl.appendChild(yearEl);
     }
-    
-    // Load and display car details
-    await loadCarDetails(carId);
-    
-    // Initialize booking form
-    initializeBookingForm();
-    
-    // Load related cars
-    await loadRelatedCars(carId);
-});
+    const rating = toNumber(car._raw.rating) ?? 4.0;
+    const reviews = toInt(car._raw.reviews) ?? 50;
+    $id('car-stars').innerHTML = stars(rating);
+    $id('car-rating-text').textContent = `${rating} (${reviews} reviews)`;
 
-async function loadCarDetails(carId) {
-    try {
-        // Show loading state
-        document.querySelector('.car-details-container').innerHTML = `
-            <div style="text-align: center; padding: 50px;">
-                <div class="loading-spinner"></div>
-                <p>Loading car details...</p>
-            </div>
-        `;
-        
-        // Load cars data
-        const response = await fetch('./data/cars.json');
-        const cars = await response.json();
-        
-        // Find the car by ID
-        const car = cars.find(c => c.id === parseInt(carId));
-        
-        if (!car) {
-            throw new Error('Car not found');
-        }
-        
-        // Display car details
-        displayCarDetails(car);
-        
-        // Set car data for booking form
-        window.currentCar = car;
-        
-    } catch (error) {
-        console.error('Error loading car details:', error);
-        document.querySelector('.car-details-container').innerHTML = `
-            <div style="text-align: center; padding: 100px;">
-                <h3>Car Not Found</h3>
-                <p>The requested car could not be found.</p>
-                <a href="services.html" class="hero-btn">Back to Cars</a>
-            </div>
-        `;
+    const descWrap = $id('car-description-container');
+    const desc = $id('car-description');
+    if (car._raw.description) {
+      descWrap.hidden = false;
+      desc.textContent = String(car._raw.description);
+    } else {
+      descWrap.hidden = true;
+      desc.textContent = '';
     }
-}
 
-function displayCarDetails(car) {
-    const container = document.querySelector('.car-details-container');
-    
-    // Create image array for gallery
-    const images = [];
-    
-    // Add main image
-    if (car.image) {
-        images.push({ src: car.image, label: 'Main View' });
-    }
-    
-    // Add detail images if available
-    if (car.detailImage) {
-        if (car.detailImage.interior) {
-            images.push({ src: car.detailImage.interior, label: 'Interior' });
-        }
-        if (car.detailImage.side) {
-            images.push({ src: car.detailImage.side, label: 'Side View' });
-        }
-        if (car.detailImage.dashboard) {
-            images.push({ src: car.detailImage.dashboard, label: 'Dashboard' });
-        }
-    }
-    
-    // If no images found, use placeholder
-    if (images.length === 0) {
-        images.push({ src: 'assets/images/placeholder.jpg', label: 'Car Image' });
-    }
-    
-    // Create status badges
-    const badges = [];
-    if (car.isPopular) badges.push('popular');
-    if (car.isLuxury) badges.push('luxury');
-    if (car.isUsed) badges.push('used');
-    if (!car.isUsed) badges.push('new');
-    
-    // Format price with thousand separators
-    const formattedPrice = new Intl.NumberFormat('en-US').format(car.price);
-    const weeklyPrice = new Intl.NumberFormat('en-US').format(car.price * 7 * 0.85);
-    
-    container.innerHTML = `
-        <!-- Breadcrumb -->
-        <div class="breadcrumb">
-            <a href="index.html">Home</a> &gt;
-            <a href="services.html">Car Service</a> &gt;
-            <span>${car.brand} ${car.name}</span>
-        </div>
+    renderGallery(car.images);
+    renderSpecs('#primary-specs-section', '#primary-specs', primarySpecs(car));
+    renderFeatures(car.features);
+    renderSpecs('#additional-specs-section', '#additional-specs', additionalSpecs(car));
+    renderExtraFields(car);
 
-        <!-- Status Badges -->
-        <div class="status-badges">
-            ${badges.map(badge => `
-                <div class="status-badge ${badge}">
-                    ${badge.charAt(0).toUpperCase() + badge.slice(1)}
-                </div>
-            `).join('')}
-            <div class="status-badge available">Available</div>
-        </div>
+    $id('car-id').value = String(car.id ?? '');
+    $id('car-name').value = title;
+    $id('daily-rate-input').value = String(car.price);
+  }
 
-        <!-- Car Images Gallery -->
-        <section class="car-gallery-section">
-            <div class="main-car-image">
-                <img src="${images[0].src}" alt="${car.brand} ${car.name}" id="main-image" 
-                     onerror="this.onerror=null; this.src='assets/images/placeholder.jpg'">
-                <div class="image-nav">
-                    <button class="nav-btn prev-btn">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button class="nav-btn next-btn">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="thumbnail-gallery">
-                ${images.map((img, index) => `
-                    <div class="thumbnail ${index === 0 ? 'active' : ''}" 
-                         data-image="${img.src}" 
-                         data-index="${index}">
-                        <img src="${img.src}" alt="${img.label}" 
-                             onerror="this.onerror=null; this.src='assets/images/placeholder.jpg'">
-                        <div class="thumbnail-label">${img.label}</div>
-                    </div>
-                `).join('')}
-            </div>
-        </section>
+  function renderBreadcrumb(title) {
+    const bc = $id('breadcrumb');
+    bc.innerHTML = '';
+    bc.appendChild(link('index.html', 'Home'));
+    bc.append(' > ');
+    bc.appendChild(link('services.html', 'Car Service'));
+    bc.append(' > ');
+    const s = document.createElement('span');
+    s.textContent = title;
+    bc.appendChild(s);
+  }
 
-        <!-- Car Details and Booking Form -->
-        <section class="details-booking-section">
-            <!-- Car Details -->
-            <div class="car-details-info">
-                <div class="car-header">
-                    <h1>${car.brand} ${car.name} ${car.year ? `<span class="car-brand">${car.year}</span>` : ''}</h1>
-                    <div class="car-rating">
-                        <div class="stars">
-                            ${getStarRating(car.rating || 4.0)}
-                        </div>
-                        <span class="rating-text">${car.rating || 4.0} (${car.reviews || 50} reviews)</span>
-                    </div>
-                </div>
-                
-                ${car.description ? `
-                    <div class="car-description">
-                        <p>${car.description}</p>
-                    </div>
-                ` : ''}
-                
-                <div class="price-section">
-                    <div class="daily-rate">
-                        <span class="rate-label">
-                            <i class="fas fa-calendar-day"></i> Daily Rate
-                        </span>
-                        <span class="rate-amount">${formattedPrice} birr</span>
-                    </div>
-                    <div class="weekly-rate">
-                        <span class="rate-label">
-                            <i class="fas fa-calendar-week"></i> Weekly Rate
-                        </span>
-                        <span class="rate-amount">${weeklyPrice} birr</span>
-                        <div class="rate-save">Save 15% on weekly rental</div>
-                    </div>
-                </div>
-                
-                <div class="car-specs">
-                    <h3><i class="fas fa-cogs"></i> Vehicle Specifications</h3>
-                    <div class="specs-grid">
-                        <div class="spec-item">
-                            <i class="fas fa-gas-pump"></i>
-                            <div class="spec-content">
-                                <span class="spec-label">Fuel Type</span>
-                                <span class="spec-value">${car.fuelType}</span>
-                            </div>
-                        </div>
-                        <div class="spec-item">
-                            <i class="fas fa-cogs"></i>
-                            <div class="spec-content">
-                                <span class="spec-label">Transmission</span>
-                                <span class="spec-value">${car.transmission}</span>
-                            </div>
-                        </div>
-                        <div class="spec-item">
-                            <i class="fas fa-user-friends"></i>
-                            <div class="spec-content">
-                                <span class="spec-label">Seating Capacity</span>
-                                <span class="spec-value">${car.seats} Persons</span>
-                            </div>
-                        </div>
-                        <div class="spec-item">
-                            <i class="fas fa-car"></i>
-                            <div class="spec-content">
-                                <span class="spec-label">Body Type</span>
-                                <span class="spec-value">${car.bodyType}</span>
-                            </div>
-                        </div>
-                        ${car.engine ? `
-                        <div class="spec-item">
-                            <i class="fas fa-tachometer-alt"></i>
-                            <div class="spec-content">
-                                <span class="spec-label">Engine</span>
-                                <span class="spec-value">${car.engine}</span>
-                            </div>
-                        </div>
-                        ` : ''}
-                        ${car.color ? `
-                        <div class="spec-item">
-                            <i class="fas fa-palette"></i>
-                            <div class="spec-content">
-                                <span class="spec-label">Color</span>
-                                <span class="spec-value">${car.color}</span>
-                            </div>
-                        </div>
-                        ` : ''}
-                        ${car.mileage ? `
-                        <div class="spec-item">
-                            <i class="fas fa-road"></i>
-                            <div class="spec-content">
-                                <span class="spec-label">Mileage</span>
-                                <span class="spec-value">${car.mileage}</span>
-                            </div>
-                        </div>
-                        ` : ''}
-                        ${car.year ? `
-                        <div class="spec-item">
-                            <i class="fas fa-calendar"></i>
-                            <div class="spec-content">
-                                <span class="spec-label">Year</span>
-                                <span class="spec-value">${car.year}</span>
-                            </div>
-                        </div>
-                        ` : ''}
-                        ${car.fuelEfficiency ? `
-                        <div class="spec-item">
-                            <i class="fas fa-gas-pump"></i>
-                            <div class="spec-content">
-                                <span class="spec-label">Fuel Efficiency</span>
-                                <span class="spec-value">${car.fuelEfficiency}</span>
-                            </div>
-                        </div>
-                        ` : ''}
-                        ${car.power ? `
-                        <div class="spec-item">
-                            <i class="fas fa-bolt"></i>
-                            <div class="spec-content">
-                                <span class="spec-label">Power</span>
-                                <span class="spec-value">${car.power}</span>
-                            </div>
-                        </div>
-                        ` : ''}
-                    </div>
-                </div>
-                
-                ${car.features && car.features.length > 0 ? `
-                <div class="features-list">
-                    <h3><i class="fas fa-star"></i> Key Features</h3>
-                    <div class="features-grid">
-                        ${car.features.slice(0, 8).map(feature => `
-                            <div class="feature-item">
-                                <i class="fas fa-check-circle"></i>
-                                <span>${feature}</span>
-                            </div>
-                        `).join('')}
-                        ${car.features.length > 8 ? `
-                            <div class="feature-item">
-                                <i class="fas fa-plus-circle"></i>
-                                <span>+${car.features.length - 8} more features</span>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-                ` : ''}
+  function renderBadges(car) {
+    const wrap = $id('status-badges');
+    wrap.innerHTML = '';
+    if (car.isPopular) wrap.appendChild(badge('popular', 'Popular'));
+    if (car.isLuxury) wrap.appendChild(badge('luxury', 'Luxury'));
+    if (car.isUsed === true) wrap.appendChild(badge('used', 'Used'));
+    if (car.isUsed === false) wrap.appendChild(badge('new', 'New'));
+    wrap.appendChild(car.available === false ? badge('used', 'Not Available') : badge('available', 'Available'));
+  }
 
-                <!-- Additional Information -->
-                <div class="car-specs" style="margin-top: 30px;">
-                    <h3><i class="fas fa-info-circle"></i> Additional Information</h3>
-                    <div class="specs-grid">
-                        ${car.location ? `
-                        <div class="spec-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div class="spec-content">
-                                <span class="spec-label">Location</span>
-                                <span class="spec-value">${car.location}</span>
-                            </div>
-                        </div>
-                        ` : ''}
-                        ${car.insurance ? `
-                        <div class="spec-item">
-                            <i class="fas fa-shield-alt"></i>
-                            <div class="spec-content">
-                                <span class="spec-label">Insurance</span>
-                                <span class="spec-value">${car.insurance}</span>
-                            </div>
-                        </div>
-                        ` : ''}
-                        ${car.available !== undefined ? `
-                        <div class="spec-item">
-                            <i class="fas ${car.available ? 'fa-check-circle' : 'fa-times-circle'}"></i>
-                            <div class="spec-content">
-                                <span class="spec-label">Availability</span>
-                                <span class="spec-value">${car.available ? 'Available Now' : 'Not Available'}</span>
-                            </div>
-                        </div>
-                        ` : ''}
-                        ${car.batteryRange ? `
-                        <div class="spec-item">
-                            <i class="fas fa-car-battery"></i>
-                            <div class="spec-content">
-                                <span class="spec-label">Battery Range</span>
-                                <span class="spec-value">${car.batteryRange}</span>
-                            </div>
-                        </div>
-                        ` : ''}
-                        ${car.chargingTime ? `
-                        <div class="spec-item">
-                            <i class="fas fa-charging-station"></i>
-                            <div class="spec-content">
-                                <span class="spec-label">Charging Time</span>
-                                <span class="spec-value">${car.chargingTime}</span>
-                            </div>
-                        </div>
-                        ` : ''}
-                        ${car.torque ? `
-                        <div class="spec-item">
-                            <i class="fas fa-cog"></i>
-                            <div class="spec-content">
-                                <span class="spec-label">Torque</span>
-                                <span class="spec-value">${car.torque}</span>
-                            </div>
-                        </div>
-                        ` : ''}
-                    </div>
-                </div>
-            </div>
+  function renderGallery(images) {
+    const main = $id('main-image');
+    const nav = $('.image-nav');
+    const prev = $('.prev-btn');
+    const next = $('.next-btn');
+    const thumbs = $id('thumbnail-gallery');
 
-            <!-- Booking Form -->
-            <div class="booking-form-container">
-                <h2><i class="fas fa-calendar-check"></i> Book This Vehicle</h2>
-                <form id="booking-form">
-                    <input type="hidden" id="car-id" value="${car.id}">
-                    <input type="hidden" id="car-name" value="${car.brand} ${car.name}">
-                    <input type="hidden" id="daily-rate" value="${car.price}">
-                    
-                    <div class="form-group">
-                        <label for="full-name"><i class="fas fa-user"></i> Full Name *</label>
-                        <input type="text" id="full-name" name="full-name" required 
-                               placeholder="Enter your full name">
-                        <div class="error-message" id="full-name-error"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email"><i class="fas fa-envelope"></i> Email Address *</label>
-                        <input type="email" id="email" name="email" required 
-                               placeholder="your.email@example.com">
-                        <div class="error-message" id="email-error"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="phone"><i class="fas fa-phone"></i> Phone Number *</label>
-                        <input type="tel" id="phone" name="phone" required 
-                               placeholder="+251 9XX XXX XXX">
-                        <div class="error-message" id="phone-error"></div>
-                    </div>
-                    
-                    <div class="date-group">
-                        <div class="form-group">
-                            <label for="pickup-date"><i class="fas fa-calendar-plus"></i> Pick-up Date *</label>
-                            <input type="date" id="pickup-date" name="pickup-date" required>
-                            <div class="error-message" id="pickup-date-error"></div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="dropoff-date"><i class="fas fa-calendar-minus"></i> Drop-off Date *</label>
-                            <input type="date" id="dropoff-date" name="dropoff-date" required>
-                            <div class="error-message" id="dropoff-date-error"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="pickup-location"><i class="fas fa-map-marker-alt"></i> Pick-up Location *</label>
-                        <select id="pickup-location" name="pickup-location" required>
-                            <option value="">Select location</option>
-                            <option value="addis_ababa_airport">Addis Ababa Bole Airport</option>
-                            <option value="addis_ababa_center">City Center Office</option>
-                            <option value="addis_ababa_south">South Addis Office</option>
-                            <option value="other_location">Other (Specify in notes)</option>
-                        </select>
-                        <div class="error-message" id="pickup-location-error"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="driver-type"><i class="fas fa-id-card"></i> Driver Option</label>
-                        <select id="driver-type" name="driver-type">
-                            <option value="self_drive">Self Drive</option>
-                            <option value="with_driver">With Driver (Additional 2,000 birr/day)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="special-requests"><i class="fas fa-comment"></i> Special Requests</label>
-                        <textarea id="special-requests" name="special-requests" rows="3" 
-                                  placeholder="Any special requirements or questions..."></textarea>
-                    </div>
-                    
-                    <div class="form-note">
-                        <i class="fas fa-info-circle"></i>
-                        Our team will contact you within 2 hours to confirm your booking and discuss payment options.
-                    </div>
-                    
-                    <div class="total-price">
-                        <div class="total-row">
-                            <span>Rental Period:</span>
-                            <span id="total-days">0</span> days
-                        </div>
-                        <div class="total-row">
-                            <span>Daily Rate:</span>
-                            <span>${formattedPrice} birr</span>
-                        </div>
-                        <div class="total-row">
-                            <span>Weekly Discount:</span>
-                            <span id="discount-amount">0 birr</span>
-                        </div>
-                        <div class="total-row">
-                            <span>Driver Fee:</span>
-                            <span id="driver-fee">0 birr</span>
-                        </div>
-                        <div class="total-row total">
-                            <span>Total Price:</span>
-                            <span id="total-price">0 birr</span>
-                        </div>
-                    </div>
-                    
-                    <div class="rental-terms">
-                        <h4><i class="fas fa-file-contract"></i> Rental Terms</h4>
-                        <ul>
-                            <li>Minimum rental period: 1 day</li>
-                            <li>Security deposit required upon pickup</li>
-                            <li>Free cancellation up to 24 hours before pickup</li>
-                            <li>Insurance included in rental price</li>
-                            <li>Must be 21+ years old with valid driver's license</li>
-                            <li>Unlimited mileage included</li>
-                        </ul>
-                    </div>
-                    
-                    <button type="submit" class="submit-btn">
-                        <i class="fas fa-calendar-check"></i>
-                        Book Now
-                    </button>
-                </form>
-                
-                <div class="success-message" id="success-message">
-                    <i class="fas fa-check-circle"></i>
-                    <h3>Booking Request Submitted!</h3>
-                    <p>Thank you for your booking request. Our team will contact you shortly to confirm your reservation and discuss payment details.</p>
-                    <div class="success-details" id="success-details"></div>
-                    <button onclick="window.location.href='services.html'" class="hero-btn" style="margin-top: 20px;">
-                        Browse More Cars
-                    </button>
-                </div>
-            </div>
-        </section>
-    `;
-    
-    // Initialize gallery functionality
-    initializeGallery(images);
-}
+    const imgs = images?.length ? images : [{ src: FALLBACK_IMAGE, label: 'Car Image' }];
+    let idx = 0;
 
-function getStarRating(rating) {
-    let stars = '';
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-    
-    for (let i = 0; i < fullStars; i++) {
-        stars += '<i class="fas fa-star"></i>';
-    }
-    
-    if (hasHalfStar) {
-        stars += '<i class="fas fa-star-half-alt"></i>';
-    }
-    
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    for (let i = 0; i < emptyStars; i++) {
-        stars += '<i class="far fa-star"></i>';
-    }
-    
-    return stars;
-}
+    const setMain = () => {
+      main.src = imgs[idx]?.src || FALLBACK_IMAGE;
+      main.alt = imgs[idx]?.label || 'Car image';
+    };
+    const sync = () => thumbs.querySelectorAll('.thumbnail').forEach((t, i) => t.classList.toggle('active', i === idx));
 
-function initializeGallery(images) {
-    const mainImage = document.getElementById('main-image');
-    const thumbnails = document.querySelectorAll('.thumbnail');
-    const prevBtn = document.querySelector('.prev-btn');
-    const nextBtn = document.querySelector('.next-btn');
-    
-    if (!mainImage || !thumbnails.length) return;
-    
-    let currentIndex = 0;
-    
-    // Thumbnail click handler
-    thumbnails.forEach((thumb, index) => {
-        thumb.addEventListener('click', function() {
-            // Remove active class from all thumbnails
-            thumbnails.forEach(t => t.classList.remove('active'));
-            
-            // Add active class to clicked thumbnail
-            this.classList.add('active');
-            
-            // Change main image
-            currentIndex = index;
-            updateMainImage();
-        });
+    thumbs.innerHTML = '';
+    imgs.forEach((img, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `thumbnail${i === 0 ? ' active' : ''}`;
+      const im = document.createElement('img');
+      im.src = img.src;
+      im.alt = img.label;
+      im.onerror = () => (im.src = FALLBACK_IMAGE);
+      const lab = document.createElement('span');
+      lab.className = 'thumbnail-label';
+      lab.textContent = img.label;
+      b.append(im, lab);
+      b.addEventListener('click', () => (idx = i, setMain(), sync()));
+      thumbs.appendChild(b);
     });
-    
-    // Previous button
-    if (prevBtn) {
-        prevBtn.addEventListener('click', function() {
-            currentIndex = (currentIndex - 1 + images.length) % images.length;
-            updateMainImage();
-            updateActiveThumbnail();
-        });
-    }
-    
-    // Next button
-    if (nextBtn) {
-        nextBtn.addEventListener('click', function() {
-            currentIndex = (currentIndex + 1) % images.length;
-            updateMainImage();
-            updateActiveThumbnail();
-        });
-    }
-    
-    function updateMainImage() {
-        mainImage.src = images[currentIndex].src;
-        mainImage.style.opacity = '0.5';
-        setTimeout(() => {
-            mainImage.style.opacity = '1';
-        }, 150);
-    }
-    
-    function updateActiveThumbnail() {
-        thumbnails.forEach((t, i) => {
-            t.classList.toggle('active', i === currentIndex);
-        });
-    }
-    
-    // Auto-rotate images every 5 seconds (only if more than 1 image)
-    if (images.length > 1) {
-        setInterval(() => {
-            currentIndex = (currentIndex + 1) % images.length;
-            updateMainImage();
-            updateActiveThumbnail();
-        }, 5000);
-    }
-}
 
-function initializeBookingForm() {
-    const bookingForm = document.getElementById('booking-form');
-    const successMessage = document.getElementById('success-message');
-    const totalDaysElement = document.getElementById('total-days');
-    const totalPriceElement = document.getElementById('total-price');
-    const discountAmountElement = document.getElementById('discount-amount');
-    const driverFeeElement = document.getElementById('driver-fee');
-    
-    if (!bookingForm) return;
-    
-    // Set minimum dates
-    function setMinDates() {
-        const today = new Date();
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        
-        const pickupDate = document.getElementById('pickup-date');
-        const dropoffDate = document.getElementById('dropoff-date');
-        
-        if (!pickupDate || !dropoffDate) return;
-        
-        // Format dates for input fields
-        const formatDate = (date) => {
-            return date.toISOString().split('T')[0];
-        };
-        
-        const minDate = formatDate(tomorrow);
-        pickupDate.min = minDate;
-        dropoffDate.min = minDate;
-        
-        // Set default dates
-        pickupDate.value = minDate;
-        const dayAfterTomorrow = new Date(tomorrow);
-        dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
-        dropoffDate.value = formatDate(dayAfterTomorrow);
-        
-        // Calculate initial total
-        calculateTotal();
-    }
-    
-    // Calculate total price
-    function calculateTotal() {
-        const pickupDate = document.getElementById('pickup-date');
-        const dropoffDate = document.getElementById('dropoff-date');
-        const driverType = document.getElementById('driver-type');
-        
-        if (pickupDate && dropoffDate && driverType && window.currentCar) {
-            const pickup = new Date(pickupDate.value);
-            const dropoff = new Date(dropoffDate.value);
-            
-            // Calculate days difference
-            const timeDiff = dropoff.getTime() - pickup.getTime();
-            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            
-            if (daysDiff > 0) {
-                totalDaysElement.textContent = daysDiff;
-                
-                // Calculate base price
-                let totalPrice = daysDiff * window.currentCar.price;
-                let discount = 0;
-                let driverFee = 0;
-                
-                // Apply weekly discount
-                const weeks = Math.floor(daysDiff / 7);
-                if (weeks > 0) {
-                    const weeklyDiscount = weeks * 7 * window.currentCar.price * 0.15;
-                    discount = weeklyDiscount;
-                    totalPrice -= weeklyDiscount;
-                }
-                
-                // Add driver cost if selected
-                if (driverType.value === 'with_driver') {
-                    driverFee = daysDiff * 2000;
-                    totalPrice += driverFee;
-                }
-                
-                // Update display
-                discountAmountElement.textContent = formatNumber(discount) + ' birr';
-                driverFeeElement.textContent = formatNumber(driverFee) + ' birr';
-                totalPriceElement.textContent = formatNumber(totalPrice) + ' birr';
-            } else {
-                totalDaysElement.textContent = '0';
-                discountAmountElement.textContent = '0 birr';
-                driverFeeElement.textContent = '0 birr';
-                totalPriceElement.textContent = '0 birr';
-            }
-        }
-    }
-    
-    // Format number with thousand separators
-    function formatNumber(num) {
-        return new Intl.NumberFormat('en-US').format(num);
-    }
-    
-    // Form validation
-    function validateForm() {
-        let isValid = true;
-        const requiredFields = bookingForm.querySelectorAll('[required]');
-        
-        // Reset error states
-        bookingForm.querySelectorAll('.error-message').forEach(el => {
-            el.style.display = 'none';
-        });
-        bookingForm.querySelectorAll('.error').forEach(el => {
-            el.classList.remove('error');
-        });
-        
-        // Validate each required field
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                field.classList.add('error');
-                const errorId = field.id + '-error';
-                const errorElement = document.getElementById(errorId);
-                if (errorElement) {
-                    errorElement.textContent = 'This field is required';
-                    errorElement.style.display = 'block';
-                }
-                isValid = false;
-            } else if (field.type === 'email' && !validateEmail(field.value)) {
-                field.classList.add('error');
-                const errorId = field.id + '-error';
-                const errorElement = document.getElementById(errorId);
-                if (errorElement) {
-                    errorElement.textContent = 'Please enter a valid email address';
-                    errorElement.style.display = 'block';
-                }
-                isValid = false;
-            } else if (field.type === 'tel' && !validatePhone(field.value)) {
-                field.classList.add('error');
-                const errorId = field.id + '-error';
-                const errorElement = document.getElementById(errorId);
-                if (errorElement) {
-                    errorElement.textContent = 'Format: +251XXXXXXXXX or 0XXXXXXXXX';
-                    errorElement.style.display = 'block';
-                }
-                isValid = false;
-            }
-        });
-        
-        // Validate dates
-        const pickupDate = document.getElementById('pickup-date');
-        const dropoffDate = document.getElementById('dropoff-date');
-        
-        if (pickupDate && dropoffDate && pickupDate.value && dropoffDate.value) {
-            const pickup = new Date(pickupDate.value);
-            const dropoff = new Date(dropoffDate.value);
-            
-            if (dropoff <= pickup) {
-                pickupDate.classList.add('error');
-                dropoffDate.classList.add('error');
-                document.getElementById('pickup-date-error').textContent = 'Drop-off date must be after pick-up date';
-                document.getElementById('pickup-date-error').style.display = 'block';
-                document.getElementById('dropoff-date-error').textContent = 'Drop-off date must be after pick-up date';
-                document.getElementById('dropoff-date-error').style.display = 'block';
-                isValid = false;
-            }
-            
-            // Check if pickup is at least tomorrow
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            if (pickup < today) {
-                pickupDate.classList.add('error');
-                document.getElementById('pickup-date-error').textContent = 'Pick-up date cannot be in the past';
-                document.getElementById('pickup-date-error').style.display = 'block';
-                isValid = false;
-            }
-        }
-        
-        return isValid;
-    }
-    
-    function validateEmail(email) {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email);
-    }
-    
-    function validatePhone(phone) {
-        const cleaned = phone.replace(/\s+/g, '');
-        const re = /^(\+251|0)[0-9]{9}$/;
-        return re.test(cleaned);
-    }
-    
-    // Save booking to local storage
-    function saveBooking(formData) {
-        let bookings = JSON.parse(localStorage.getItem('carBookings')) || [];
-        
-        const booking = {
-            id: Date.now(),
-            carId: window.currentCar.id,
-            carName: `${window.currentCar.brand} ${window.currentCar.name}`,
-            carImage: window.currentCar.image,
-            ...formData,
-            submittedAt: new Date().toISOString(),
-            status: 'pending'
-        };
-        
-        bookings.push(booking);
-        localStorage.setItem('carBookings', JSON.stringify(bookings));
-        
-        return booking;
-    }
-    
-    // Form submission
-    bookingForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        if (!validateForm()) {
-            return;
-        }
-        
-        // Collect form data
-        const formData = {
-            fullName: document.getElementById('full-name').value,
-            email: document.getElementById('email').value,
-            phone: document.getElementById('phone').value,
-            pickupDate: document.getElementById('pickup-date').value,
-            dropoffDate: document.getElementById('dropoff-date').value,
-            pickupLocation: document.getElementById('pickup-location').value,
-            driverType: document.getElementById('driver-type').value,
-            specialRequests: document.getElementById('special-requests').value,
-            totalDays: totalDaysElement.textContent,
-            totalPrice: totalPriceElement.textContent,
-            discount: discountAmountElement.textContent,
-            driverFee: driverFeeElement.textContent
-        };
-        
-        // Save to local storage
-        const booking = saveBooking(formData);
-        
-        // Show success message
-        bookingForm.style.display = 'none';
-        successMessage.style.display = 'block';
-        
-        // Display booking details
-        const successDetails = document.getElementById('success-details');
-        successDetails.innerHTML = `
-            <h4>Booking Details</h4>
-            <div class="detail-row">
-                <span>Booking ID:</span>
-                <span>#${booking.id}</span>
-            </div>
-            <div class="detail-row">
-                <span>Vehicle:</span>
-                <span>${booking.carName}</span>
-            </div>
-            <div class="detail-row">
-                <span>Pick-up Date:</span>
-                <span>${new Date(booking.pickupDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-            </div>
-            <div class="detail-row">
-                <span>Duration:</span>
-                <span>${booking.totalDays} days</span>
-            </div>
-            <div class="detail-row">
-                <span>Total Price:</span>
-                <span>${booking.totalPrice}</span>
-            </div>
-            <div class="detail-row">
-                <span>Status:</span>
-                <span style="color: #FFD700; font-weight: bold;">Pending Confirmation</span>
-            </div>
-        `;
-        
-        // Scroll to success message
-        successMessage.scrollIntoView({ behavior: 'smooth' });
-        
-        // Send notification (simulated)
-        sendBookingNotification(booking);
-        
-        // Clear form after submission
-        setTimeout(() => {
-            bookingForm.reset();
-            setMinDates();
-        }, 3000);
+    const visible = imgs.length > 1;
+    nav.style.display = visible ? '' : 'none';
+    thumbs.style.display = visible ? '' : 'none';
+    prev.onclick = visible ? () => (idx = (idx - 1 + imgs.length) % imgs.length, setMain(), sync()) : null;
+    next.onclick = visible ? () => (idx = (idx + 1) % imgs.length, setMain(), sync()) : null;
+    setMain();
+  }
+
+  function renderSpecs(sectionSel, gridSel, items) {
+    const section = $(sectionSel);
+    const grid = $(gridSel);
+    grid.innerHTML = '';
+    section.hidden = items.length === 0;
+    items.forEach((it) => grid.appendChild(specItem(it)));
+  }
+
+  function renderFeatures(features) {
+    const section = $id('features-section');
+    const grid = $id('features-grid');
+    grid.innerHTML = '';
+    section.hidden = features.length === 0;
+    if (!features.length) return;
+
+    features.slice(0, 10).forEach((f) => grid.appendChild(featureItem('fa-check-circle', f)));
+    const rem = features.length - 10;
+    if (rem > 0) grid.appendChild(featureItem('fa-plus-circle', `+${rem} more`));
+  }
+
+  function renderExtraFields(car) {
+    const section = $id('extra-fields-section');
+    const grid = $id('extra-fields-grid');
+    const excluded = new Set([
+      'id','brand','name','price','bodyType','fuelType','transmission','isUsed','isPopular','isLuxury','features',
+      'image','image_path','imagePath','detailImage','detail_image','description','rating','reviews','available',
+      'seats','engine','color','mileage','year','fuelEfficiency','power','torque',
+    ]);
+
+    const extras = Object.entries(car._raw || {}).filter(([k, v]) => !excluded.has(k) && v != null && v !== '');
+    grid.innerHTML = '';
+    section.hidden = extras.length === 0;
+    extras.forEach(([k, v]) => grid.appendChild(kvItem(humanizeKey(k), formatAny(v))));
+  }
+
+  function renderRelated(cars, currentRaw) {
+    const section = $id('related-cars');
+    const grid = $id('related-cars-grid');
+    const current = norm(currentRaw);
+
+    const related = cars
+      .filter((c) => String(c.id) !== String(currentRaw.id))
+      .map(norm)
+      .sort((a, b) => relScore(b, current) - relScore(a, current))
+      .slice(0, 4);
+
+    grid.innerHTML = '';
+    section.hidden = related.length === 0;
+    related.forEach((c) => grid.appendChild(relatedCard(c)));
+  }
+
+  function initBooking() {
+    const form = $id('booking-form');
+    const success = $id('success-message');
+    const details = $id('success-details');
+    if (!form || !window.currentCar) return;
+
+    form.style.display = '';
+    success.style.display = 'none';
+
+    const pickup = $id('pickup-date');
+    const dropoff = $id('dropoff-date');
+    const driver = $id('driver-type');
+    const totalDays = $id('total-days');
+    const discount = $id('discount-amount');
+    const driverFee = $id('driver-fee');
+    const total = $id('total-price');
+
+    const setMinDates = () => {
+      const t = new Date();
+      t.setDate(t.getDate() + 1);
+      const min = toInputDate(t);
+      pickup.min = min; dropoff.min = min;
+      if (!pickup.value) pickup.value = min;
+      if (!dropoff.value) { const a = new Date(t); a.setDate(a.getDate() + 2); dropoff.value = toInputDate(a); }
+    };
+
+    const reset = () => (totalDays.textContent = '0', discount.textContent = '0 birr', driverFee.textContent = '0 birr', total.textContent = '0 birr');
+
+    const recalc = () => {
+      const d1 = new Date(pickup.value), d2 = new Date(dropoff.value);
+      const days = Math.ceil((d2 - d1) / (1000 * 3600 * 24));
+      if (!Number.isFinite(days) || days <= 0) return reset();
+      totalDays.textContent = String(days);
+      const base = days * window.currentCar.price;
+      const weeks = Math.floor(days / 7);
+      const disc = weeks > 0 ? weeks * 7 * window.currentCar.price * 0.15 : 0;
+      const drv = driver.value === 'with_driver' ? days * 2000 : 0;
+      discount.textContent = `${formatNumber(disc)} birr`;
+      driverFee.textContent = `${formatNumber(drv)} birr`;
+      total.textContent = `${formatNumber(base - disc + drv)} birr`;
+    };
+
+    const validate = () => {
+      let ok = true;
+      form.querySelectorAll('.error-message').forEach((n) => (n.style.display = 'none'));
+      form.querySelectorAll('.error').forEach((n) => n.classList.remove('error'));
+      form.querySelectorAll('[required]').forEach((field) => {
+        const v = String(field.value || '').trim();
+        if (!v) return mark(field, 'This field is required');
+        if (field.type === 'email' && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(v)) return mark(field, 'Invalid email');
+        if (field.type === 'tel' && !/^(\\+251|0)[0-9]{9}$/.test(v.replace(/\\s+/g, ''))) return mark(field, 'Format: +251XXXXXXXXX or 0XXXXXXXXX');
+      });
+      if (new Date(dropoff.value) <= new Date(pickup.value)) {
+        mark(pickup, 'Drop-off date must be after pick-up date');
+        mark(dropoff, 'Drop-off date must be after pick-up date');
+      }
+      return ok;
+      function mark(field, msg) {
+        ok = false; field.classList.add('error');
+        const e = $id(`${field.id}-error`); if (e) (e.textContent = msg, (e.style.display = 'block'));
+      }
+    };
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!validate()) return;
+      const booking = saveBooking({
+        fullName: $id('full-name').value,
+        email: $id('email').value,
+        phone: $id('phone').value,
+        pickupDate: pickup.value,
+        dropoffDate: dropoff.value,
+        pickupLocation: $id('pickup-location').value,
+        driverType: driver.value,
+        specialRequests: $id('special-requests').value,
+        totalDays: totalDays.textContent,
+        totalPrice: total.textContent,
+        discount: discount.textContent,
+        driverFee: driverFee.textContent,
+      });
+      form.style.display = 'none';
+      success.style.display = 'block';
+      details.innerHTML = '';
+      details.append(successRow('Booking ID', `#${booking.id}`), successRow('Vehicle', booking.carName), successRow('Pick-up Date', prettyDate(booking.pickupDate)), successRow('Duration', `${booking.totalDays} days`), successRow('Total Price', booking.totalPrice));
+      success.scrollIntoView({ behavior: 'smooth' });
     });
-    
-    // Initialize event listeners
+
     setMinDates();
-    
-    // Recalculate on date changes
-    document.getElementById('pickup-date').addEventListener('change', calculateTotal);
-    document.getElementById('dropoff-date').addEventListener('change', calculateTotal);
-    document.getElementById('driver-type').addEventListener('change', calculateTotal);
-    
-    // Real-time phone validation
-    document.getElementById('phone').addEventListener('input', function(e) {
-        const errorElement = document.getElementById('phone-error');
-        if (errorElement) {
-            if (e.target.value && !validatePhone(e.target.value)) {
-                errorElement.textContent = 'Format: +251XXXXXXXXX or 0XXXXXXXXX';
-                errorElement.style.display = 'block';
-            } else {
-                errorElement.style.display = 'none';
-            }
-        }
-    });
-}
+    recalc();
+    pickup.addEventListener('change', recalc);
+    dropoff.addEventListener('change', recalc);
+    driver.addEventListener('change', recalc);
+  }
 
-async function loadRelatedCars(carId) {
-    try {
-        const response = await fetch('./data/cars.json');
-        const cars = await response.json();
-        
-        const currentCar = cars.find(c => c.id === parseInt(carId));
-        if (!currentCar) return;
-        
-        // Get related cars (same brand or similar body type, exclude current car)
-        const relatedCars = cars
-            .filter(c => c.id !== parseInt(carId))
-            .sort((a, b) => {
-                // Prioritize same brand
-                if (a.brand === currentCar.brand && b.brand !== currentCar.brand) return -1;
-                if (b.brand === currentCar.brand && a.brand !== currentCar.brand) return 1;
-                
-                // Then prioritize same body type
-                if (a.bodyType === currentCar.bodyType && b.bodyType !== currentCar.bodyType) return -1;
-                if (b.bodyType === currentCar.bodyType && a.bodyType !== currentCar.bodyType) return 1;
-                
-                // Then by popularity
-                if (a.isPopular && !b.isPopular) return -1;
-                if (!a.isPopular && b.isPopular) return 1;
-                
-                return 0;
-            })
-            .slice(0, 4);
-        
-        if (relatedCars.length > 0) {
-            displayRelatedCars(relatedCars);
-        }
-    } catch (error) {
-        console.error('Error loading related cars:', error);
+  function primarySpecs(car) {
+    const r = car._raw;
+    return [
+      sp('Fuel Type', r.fuelType, 'fa-gas-pump'),
+      sp('Transmission', r.transmission, 'fa-cogs'),
+      sp('Seating Capacity', r.seats, 'fa-user-friends', (v) => `${v} Persons`),
+      sp('Body Type', r.bodyType, 'fa-car'),
+      sp('Engine', r.engine, 'fa-tachometer-alt'),
+      sp('Color', r.color, 'fa-palette'),
+      sp('Mileage', r.mileage, 'fa-road'),
+      sp('Year', r.year, 'fa-calendar'),
+      sp('Fuel Efficiency', r.fuelEfficiency, 'fa-gas-pump'),
+      sp('Power', r.power, 'fa-bolt'),
+    ].filter(Boolean);
+  }
+
+  function additionalSpecs(car) {
+    const r = car._raw;
+    const items = [
+      sp('Location', r.location, 'fa-map-marker-alt'),
+      sp('Insurance', r.insurance, 'fa-shield-alt'),
+      sp('Battery Range', r.batteryRange, 'fa-car-battery'),
+      sp('Charging Time', r.chargingTime, 'fa-charging-station'),
+      sp('Torque', r.torque, 'fa-cog'),
+    ].filter(Boolean);
+    if (car.available === true || car.available === false) items.unshift(sp('Availability', car.available ? 'Available Now' : 'Not Available', car.available ? 'fa-check-circle' : 'fa-times-circle'));
+    return items;
+  }
+
+  function sp(label, value, icon, fmt) {
+    if (value == null || value === '') return null;
+    return { label, value: fmt ? fmt(value) : value, icon };
+  }
+
+  function specItem(it) {
+    const d = document.createElement('div');
+    d.className = 'spec-item';
+    d.innerHTML = `<i class="fas ${it.icon}"></i><div class="spec-content"><span class="spec-label"></span><span class="spec-value"></span></div>`;
+    d.querySelector('.spec-label').textContent = it.label;
+    d.querySelector('.spec-value').textContent = String(it.value);
+    return d;
+  }
+
+  function featureItem(icon, text) {
+    const d = document.createElement('div');
+    d.className = 'feature-item';
+    d.innerHTML = `<i class="fas ${icon}"></i><span></span>`;
+    d.querySelector('span').textContent = text;
+    return d;
+  }
+
+  function kvItem(k, v) {
+    const d = document.createElement('div');
+    d.className = 'kv-item';
+    d.innerHTML = `<div class="kv-key"></div><div class="kv-val"></div>`;
+    d.querySelector('.kv-key').textContent = k;
+    d.querySelector('.kv-val').textContent = v;
+    return d;
+  }
+
+  function relatedCard(car) {
+    const title = `${car.brand} ${car.name}`.trim() || 'Car';
+    const href = `car-details.html?id=${encodeURIComponent(String(car.id))}`;
+    const img = car.images[0]?.src || FALLBACK_IMAGE;
+    const a = document.createElement('a');
+    a.className = 'related-car-card';
+    a.href = href;
+    a.innerHTML = `<img alt=""><div class="card-content"><h3></h3><p class="price"></p><div class="specs"></div><div class="related-badges"></div></div>`;
+    const imgEl = $('img', a);
+    imgEl.src = img; imgEl.alt = title; imgEl.onerror = () => (imgEl.src = FALLBACK_IMAGE);
+    $('h3', a).textContent = title;
+    $('.price', a).textContent = `${formatNumber(car.price)} birr / day`;
+    $('.specs', a).textContent = [car._raw.bodyType, car._raw.fuelType, car._raw.transmission].filter(Boolean).join(' • ');
+    const b = $('.related-badges', a);
+    if (car.isLuxury) b.appendChild(badge('luxury', 'Luxury'));
+    if (car.isPopular) b.appendChild(badge('popular', 'Popular'));
+    return a;
+  }
+
+  function relScore(c, cur) {
+    let s = 0;
+    if (c.brand && c.brand === cur.brand) s += 10;
+    if (c._raw.bodyType && c._raw.bodyType === cur._raw.bodyType) s += 6;
+    if (c.isPopular) s += 2;
+    if (c.isLuxury) s += 1;
+    return s;
+  }
+
+  function parseFeatures(v) {
+    if (Array.isArray(v)) return v.map(String).map((s) => s.trim()).filter(Boolean);
+    if (typeof v !== 'string') return [];
+    return v.split(/,|\\n|;|\\|/).map((s) => s.trim()).filter(Boolean);
+  }
+
+  function collectImages(raw) {
+    const imgs = [];
+    const main = firstString(raw.image, raw.image_path, raw.imagePath, raw.mainImage);
+    if (main) imgs.push({ src: main, label: 'Main View' });
+    const detail = raw.detailImage || raw.detail_image;
+    if (detail && typeof detail === 'object') {
+      if (detail.interior) imgs.push({ src: detail.interior, label: 'Interior' });
+      if (detail.side) imgs.push({ src: detail.side, label: 'Side View' });
+      if (detail.dashboard) imgs.push({ src: detail.dashboard, label: 'Dashboard' });
     }
-}
-
-function displayRelatedCars(cars) {
-    const container = document.querySelector('.car-details-container');
-    
-    const relatedSection = document.createElement('section');
-    relatedSection.className = 'related-cars';
-    relatedSection.innerHTML = `
-        <h2>You Might Also Like</h2>
-        <div class="related-cars-grid">
-            ${cars.map(car => `
-                <a href="car-details.html?id=${car.id}" class="related-car-card">
-                    <img src="${car.image}" alt="${car.brand} ${car.name}" 
-                         onerror="this.onerror=null; this.src='assets/images/placeholder.jpg'">
-                    <div class="card-content">
-                        <h3>${car.brand} ${car.name}</h3>
-                        <p class="price">${new Intl.NumberFormat('en-US').format(car.price)} birr / day</p>
-                        <div class="specs">
-                            <span>${car.bodyType}</span>
-                            <span>•</span>
-                            <span>${car.fuelType}</span>
-                            <span>•</span>
-                            <span>${car.transmission}</span>
-                        </div>
-                        ${car.isLuxury ? '<span class="status-badge luxury" style="margin-top: 10px; display: inline-block;">Luxury</span>' : ''}
-                        ${car.isPopular ? '<span class="status-badge popular" style="margin-top: 10px; display: inline-block; margin-left: 5px;">Popular</span>' : ''}
-                    </div>
-                </a>
-            `).join('')}
-        </div>
-    `;
-    
-    container.appendChild(relatedSection);
-}
-
-function sendBookingNotification(booking) {
-    // Simulate sending notification to admin
-    console.log('Booking notification sent:', {
-        to: 'admin@autonestrental.com',
-        subject: `New Car Booking - ${booking.carName}`,
-        bookingDetails: booking
+    Object.entries(raw || {}).forEach(([k, val]) => {
+      if (!/image/i.test(k) || typeof val !== 'string' || !val.trim()) return;
+      if (imgs.some((i) => i.src === val)) return;
+      if (k === 'image' || k === 'image_path' || k === 'imagePath') return;
+      imgs.push({ src: val, label: humanizeKey(k) });
     });
-    
-    // In a real application, you would send this to your backend
-    // Example:
-    /*
-    fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(booking)
-    });
-    */
-}
+    return imgs.length ? imgs : [{ src: FALLBACK_IMAGE, label: 'Car Image' }];
+  }
 
-// Add loading spinner CSS dynamically
-const style = document.createElement('style');
-style.textContent = `
-    .loading-spinner {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #ff1313;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 20px;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-`;
-document.head.appendChild(style);
+  function badge(kind, text) {
+    const d = document.createElement('div');
+    d.className = `status-badge ${kind}`;
+    d.textContent = text;
+    return d;
+  }
+
+  function link(href, text) {
+    const a = document.createElement('a');
+    a.href = href;
+    a.textContent = text;
+    return a;
+  }
+
+  function successRow(k, v) {
+    const row = document.createElement('div');
+    row.className = 'detail-row';
+    row.innerHTML = `<span></span><span></span>`;
+    row.children[0].textContent = `${k}:`;
+    row.children[1].textContent = v;
+    return row;
+  }
+
+  function saveBooking(data) {
+    const bookings = JSON.parse(localStorage.getItem('carBookings') || '[]');
+    const b = {
+      id: Date.now(),
+      carId: window.currentCar.id,
+      carName: `${window.currentCar.brand} ${window.currentCar.name}`.trim(),
+      carImage: window.currentCar.images?.[0]?.src || '',
+      ...data,
+      submittedAt: new Date().toISOString(),
+      status: 'pending',
+    };
+    bookings.push(b);
+    localStorage.setItem('carBookings', JSON.stringify(bookings));
+    return b;
+  }
+
+  function showLoading() {
+    state.loading.hidden = false;
+    state.error.hidden = true;
+    state.content.hidden = true;
+  }
+
+  function showContent() {
+    state.loading.hidden = true;
+    state.error.hidden = true;
+    state.content.hidden = false;
+  }
+
+  function showError(title, msg) {
+    state.loading.hidden = true;
+    state.content.hidden = true;
+    state.error.hidden = false;
+    if (state.errorTitle) state.errorTitle.textContent = title;
+    if (state.errorMsg) state.errorMsg.textContent = msg;
+  }
+
+  function stars(r) {
+    const n = Math.max(0, Math.min(5, toNumber(r) ?? 0));
+    const full = Math.floor(n), half = n % 1 >= 0.5 ? 1 : 0, empty = 5 - full - half;
+    return '<i class="fas fa-star"></i>'.repeat(full) + (half ? '<i class="fas fa-star-half-alt"></i>' : '') + '<i class="far fa-star"></i>'.repeat(empty);
+  }
+
+  function formatAny(v) {
+    if (Array.isArray(v)) return v.map(formatAny).join(', ');
+    if (v && typeof v === 'object') return JSON.stringify(v);
+    if (typeof v === 'boolean') return v ? 'Yes' : 'No';
+    return String(v);
+  }
+
+  function formatNumber(n) {
+    return new Intl.NumberFormat('en-US').format(toNumber(n) ?? 0);
+  }
+
+  function toNumber(v) {
+    if (typeof v === 'number') return Number.isFinite(v) ? v : null;
+    if (typeof v !== 'string') return null;
+    const c = v.replace(/,/g, '').trim();
+    if (!c) return null;
+    const n = Number(c);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function toInt(v) {
+    const n = toNumber(v);
+    return n == null ? null : Math.trunc(n);
+  }
+
+  function toBool(v) {
+    if (v === true || v === false) return v;
+    if (v === 1 || v === '1') return true;
+    if (v === 0 || v === '0') return false;
+    return Boolean(v);
+  }
+
+  function toInputDate(d) {
+    return d.toISOString().slice(0, 10);
+  }
+
+  function firstString(...vals) {
+    for (const v of vals) if (typeof v === 'string' && v.trim()) return v.trim();
+    return null;
+  }
+
+  function humanizeKey(k) {
+    return String(k).replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/\\s+/g, ' ').trim().replace(/^./, (c) => c.toUpperCase());
+  }
+
+  function prettyDate(yyyyMmDd) {
+    const d = new Date(yyyyMmDd);
+    return Number.isNaN(d.getTime()) ? yyyyMmDd : d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+})();
