@@ -12,62 +12,72 @@ function showError(message) {
     carListContainer.innerHTML = `<div class="error">${message}</div>`;
 }
 
-// Load cars from JSON
+// Load cars from the database
 async function loadCars() {
     showLoading();
 
     try {
-        console.log('Attempting to load cars from database via get_cars.php...');
-
+        // 1. This "calls" your PHP file
         const response = await fetch('admin/get_cars.php');
 
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status} ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error("Network response was not ok");
 
-        const data = await response.json();
+        // 2. This receives the "delivery box" (JSON) and opens it
+        const rawData = await response.json();
 
-        if (data.error) {
-            throw new Error(data.error);
-        }
+        if (rawData.error) throw new Error(rawData.error);
 
-        cars = data;
-        console.log(`Successfully loaded ${cars.length} cars from database`, cars);
+        // 3. This "translates" the database data so the website can use it
+        cars = rawData.map(dbRow => {
+            return {
+                ...dbRow,
+                // The DB uses 'image_path', but our HTML looks for 'image'
+                image: dbRow.image_path || 'assets/images/placeholder.jpg',
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const carQuery = urlParams.get('car');
+                // DB sends 0 or 1. We change it to true or false
+                isPopular: dbRow.isPopular == 1,
+                isLuxury: dbRow.isLuxury == 1,
+                isUsed: dbRow.isUsed == 1,
 
-        if (carQuery) {
-            console.log(`Filtering by brand from URL: ${carQuery}`);
-            const filteredCars = filterCars(carQuery);
-            displayCars(filteredCars);
-        } else {
-            displayCars(cars);
-        }
+                // DB sends features as "AC, GPS". We turn it into ["AC", "GPS"]
+                features: dbRow.features ? dbRow.features.split(',').map(f => f.trim()) : []
+            };
+        });
+
+        console.log("Real data from database processed:", cars);
+
+        // 4. Send the translated data to the screen
+        displayCars(cars);
 
     } catch (error) {
-        console.error('Error loading database cars:', error);
-        showError(`Failed to load: ${error.message}<br>Check browser console/XAMPP for details.`);
+        console.error('Error fetching from database:', error);
+        showError(`Database Error: ${error.message}`);
     }
 }
 
-function displayCars(list = cars) {
+function displayCars(list) {
     carListContainer.innerHTML = "";
 
     if (!list || list.length === 0) {
-        carListContainer.innerHTML = `<div class="no-results">No cars found</div>`;
+        carListContainer.innerHTML = '<div class="no-results">No cars found in database.</div>';
         return;
     }
 
     list.forEach(car => {
         const carCard = document.createElement('div');
         carCard.className = 'car-card';
+
+        // Using the data we fetched and translated
         carCard.innerHTML = `
-            <img src="${car.image}" alt="${car.brand} ${car.name}" onerror="this.src='assets/images/placeholder.jpg'">
-            <h3>${car.brand} ${car.name}</h3>
-            <p><strong>${car.price}</strong> birr / day</p>
-            <p>${car.bodyType} • ${car.fuelType}</p>
-            <button onclick="window.location.href='car-details.html?id=${car.id}'" class="toggle-btn" >View Details</button>
+            <img src="${car.image}" alt="${car.brand}" onerror="this.src='assets/images/placeholder.jpg'">
+            <div class="car-card-content">
+                <h3>${car.brand} ${car.name}</h3>
+                <p><strong>${Number(car.price).toLocaleString()}</strong> birr / day</p>
+                <p>${car.bodyType} • ${car.fuelType} • ${car.transmission}</p>
+                <button onclick="window.location.href='car-details.html?id=${car.id}'" class="toggle-btn">
+                    View Details
+                </button>
+            </div>
         `;
         carListContainer.appendChild(carCard);
     });
