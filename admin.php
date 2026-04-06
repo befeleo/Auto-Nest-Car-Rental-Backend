@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (empty($_SESSION['autonest_admin'])) {
+  header('Location: login.html');
+  exit;
+}
+?>
 <!doctype html>
 <html lang="en">
 

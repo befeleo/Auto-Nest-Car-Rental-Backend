@@ -668,11 +668,9 @@
 .submit-btn {
   width: 100%;
   padding: 18px;
-  background: linear-gradient(
-    135deg,
-    var(--color-primary),
-    var(--color-primary-dark)
-  );
+  background: linear-gradient(135deg,
+      var(--color-primary),
+      var(--color-primary-dark));
   color: var(--bg-card);
   border: none;
   border-radius: 10px;
@@ -758,6 +756,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -781,8 +780,9 @@
 
 .related-cars-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 350px));
   gap: 30px;
+  justify-content: center;
 }
 
 .related-car-card {
@@ -861,6 +861,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
