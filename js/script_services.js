@@ -30,11 +30,15 @@ async function loadCars() {
         console.log("Data from DB:", rawData);
 
         cars = rawData.map(dbRow => {
+            // Check if image exists, otherwise use placeholder immediately
+            let carImage = dbRow.image_path;
+            if (!carImage || carImage.trim() === "" || carImage === "NULL") {
+                carImage = 'assets/images/placeholder.jpg';
+            }
+
             return {
                 ...dbRow,
-                // IMPORTANT: If your DB column is 'name', keep it dbRow.name
-                // If your DB column is 'car_name', change this to dbRow.car_name
-                image: dbRow.image_path || 'assets/images/placeholder.jpg',
+                image: carImage,
                 isPopular: dbRow.isPopular == 1,
                 isLuxury: dbRow.isLuxury == 1,
                 isUsed: dbRow.isUsed == 1,
@@ -85,11 +89,22 @@ function displayCars(list) {
         carCard.className = 'car-card';
 
         carCard.innerHTML = `
-            <img src="${car.image}" alt="${car.brand} ${car.name}" onerror="this.src='assets/images/placeholder.jpg'">
-            <h3>${car.brand} ${car.name}</h3>
-            <p><strong>${car.price}</strong> birr / day</p>
-            <p>${car.bodyType} • ${car.fuelType}</p>
-            <button onclick="window.location.href='car-details.php?id=${car.id}'" class="toggle-btn" >View Details</button>
+            <div class="car-image-container" style="height: 200px; overflow: hidden; background: #f4f4f4; border-radius: 20px 20px 0 0;">
+                <img src="${car.image}" 
+                     alt="${car.brand} ${car.name}" 
+                     style="width: 100%; height: 100%; object-fit: cover;"
+                     onerror="this.src='assets/images/placeholder.jpg'">
+            </div>
+            <div class="car-card-content" style="padding: 15px;">
+                <h3 style="margin: 0; color: #333;">${car.brand} ${car.name}</h3>
+                <p style="color: #2996B8; font-weight: bold; font-size: 1.1rem; margin: 10px 0;">
+                    ${Number(car.price).toLocaleString()} birr <span style="font-size: 0.8rem; color: #777;">/ day</span>
+                </p>
+                <p style="font-size: 0.9rem; color: #666;">${car.bodyType} • ${car.fuelType}</p>
+                <button onclick="window.location.href='car-details.php?id=${car.id}'" class="toggle-btn">
+                    View Details
+                </button>
+            </div>
         `;
         carListContainer.appendChild(carCard);
     });
@@ -122,11 +137,20 @@ function filterCars(query) {
     return cars.filter(car => matchesCar(car, query));
 }
 
-// 7. INITIALIZE: Run when page loads
+function showCarDetails(carId) {
+    console.log("Redirecting to details for car:", carId);
+    window.location.href = `car-details.php?id=${carId}`;
+}
+
+function closeDetails() {
+    const modal = document.getElementById("car-details");
+    if (modal) modal.style.display = "none";
+}
+
+// Initialize when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
     loadCars();
 
-    // Also handle live typing if the user doesn't press Enter
     const searchInput = document.getElementById("search-input");
     if (searchInput) {
         searchInput.addEventListener("input", (e) => {
@@ -134,13 +158,9 @@ document.addEventListener("DOMContentLoaded", () => {
             displayCars(filterCars(query));
         });
     }
-<<<<<<< HEAD
-});
-=======
 });
 
 // Make functions globally available
 window.showCarDetails = showCarDetails;
 window.closeDetails = closeDetails;
 
->>>>>>> 97b62861e5edfae26df6cc0e7bb02d5b1ec2c80f
