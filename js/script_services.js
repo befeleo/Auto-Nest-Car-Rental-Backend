@@ -67,7 +67,7 @@ function displayCars(list = cars) {
             <h3>${car.brand} ${car.name}</h3>
             <p><strong>${car.price}</strong> birr / day</p>
             <p>${car.bodyType} • ${car.fuelType}</p>
-            <button onclick="window.location.href='car-details.html?id=${car.id}'" class="toggle-btn" >View Details</button>
+            <button onclick="window.location.href='car-details.php?id=${car.id}'" class="toggle-btn" >View Details</button>
         `;
         carListContainer.appendChild(carCard);
     });
@@ -166,5 +166,4 @@ document.addEventListener("DOMContentLoaded", () => {
 // Make functions globally available
 window.showCarDetails = showCarDetails;
 window.closeDetails = closeDetails;
-
 

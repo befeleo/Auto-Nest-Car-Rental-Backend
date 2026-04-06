@@ -63,7 +63,7 @@ async function loadPopularCars() {
             carCard.style.cursor = 'pointer';
 
             carCard.onclick = () => {
-                window.location.href = `car-details.html?id=${car.id}`;
+                window.location.href = `car-details.php?id=${car.id}`;
             };
 
             carCard.innerHTML = `
