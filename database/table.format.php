@@ -43,7 +43,7 @@ function createTables($pdo) {
     }
 }
 
-include 'db_connect.php';
+require_once 'db_connect.php';
 createTables($pdo);
 ?></content>
 <parameter name="filePath">/opt/lampp/htdocs/auto-nest/database/table.format.php

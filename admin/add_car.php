@@ -6,7 +6,7 @@ if (empty($_SESSION['autonest_admin'])) {
     echo json_encode(["status" => "error", "message" => "Unauthorized"]);
     exit;
 }
-include '../database/db_connect.php';
+require_once '../database/db_connect.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {

@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 session_start();
-include '../database/db_connect.php';
+require_once '../database/db_connect.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(["status" => "error", "message" => "Invalid request method"]);
