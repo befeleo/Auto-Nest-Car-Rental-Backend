@@ -1,21 +1,23 @@
-function protectAdminPage() {
-    if (!isLoggedIn()) {
+async function protectAdminPage() {
+    const loggedIn = await isLoggedIn();
+    if (!loggedIn) {
         window.location.href = "login.html";
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     const loginForm = document.getElementById("loginForm");
 
     if (loginForm) {
-        if (isLoggedIn()) {
+        const loggedIn = await isLoggedIn();
+        if (loggedIn) {
             window.location.href = "admin.html";
             return;
         }
         initLogin();
     } else {
-        protectAdminPage();
-        loadAdminData();
+        await protectAdminPage();
+        await loadAdminData();
         setupLogout();
     }
 });
@@ -33,28 +35,29 @@ function initLogin() {
         });
     }
 
-    document.getElementById("loginForm").addEventListener("submit", (e) => {
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
         hideError();
+        try {
+            const formData = new FormData();
+            formData.append("action", "login");
+            formData.append("email", email.value);
+            formData.append("password", password.value);
 
-        if (
-            email.value === "admin@autonest.com" &&
-            password.value === "admin123"
-        ) {
-            const user = {
-                name: "Admin User",
-                email: email.value,
-                role: "admin",
-                loginTime: Date.now()
-            };
+            const response = await fetch("admin/auth.php", {
+                method: "POST",
+                body: formData
+            });
+            const result = await response.json();
 
-            localStorage.setItem("autonest_logged_in", "true");
-            localStorage.setItem("autonest_user", JSON.stringify(user));
-
-            window.location.href = "admin.html";
-        } else {
-            showError("Invalid email or password");
+            if (result.status === "success") {
+                window.location.href = "admin.html";
+            } else {
+                showError(result.message || "Invalid email or password");
+            }
+        } catch (error) {
+            showError("Could not connect to authentication server");
         }
     });
 
@@ -68,28 +71,61 @@ function initLogin() {
     }
 }
 
-function isLoggedIn() {
-    return localStorage.getItem("autonest_logged_in") === "true";
+async function isLoggedIn() {
+    try {
+        const formData = new FormData();
+        formData.append("action", "check");
+
+        const response = await fetch("admin/auth.php", {
+            method: "POST",
+            body: formData
+        });
+        const result = await response.json();
+        return result.status === "success" && result.loggedIn === true;
+    } catch (error) {
+        return false;
+    }
 }
 
-function loadAdminData() {
-    const user = JSON.parse(localStorage.getItem("autonest_user"));
+async function loadAdminData() {
+    let user = null;
+    try {
+        const formData = new FormData();
+        formData.append("action", "check");
+        const response = await fetch("admin/auth.php", {
+            method: "POST",
+            body: formData
+        });
+        const result = await response.json();
+        user = result.user || null;
+    } catch (error) {
+        user = null;
+    }
+
     if (!user) return;
 
     const nameEl = document.getElementById("admin-name");
     const emailEl = document.getElementById("admin-email");
 
-    if (nameEl) nameEl.textContent = user.name;
-    if (emailEl) emailEl.textContent = user.email;
+    if (nameEl) nameEl.value = user.name || "";
+    if (emailEl) emailEl.value = user.email || "";
 }
 
 function setupLogout() {
     const logoutBtn = document.getElementById("logoutBtn");
 
     if (logoutBtn) {
-        logoutBtn.addEventListener("click", () => {
-            localStorage.removeItem("autonest_logged_in");
-            localStorage.removeItem("autonest_user");
+        logoutBtn.addEventListener("click", async () => {
+            try {
+                const formData = new FormData();
+                formData.append("action", "logout");
+                await fetch("admin/auth.php", {
+                    method: "POST",
+                    body: formData
+                });
+            } catch (error) {
+                // Redirect even if server logout request fails.
+            }
             window.location.href = "login.html";
         });
     }
