@@ -1,22 +1,19 @@
 const carListContainer = document.getElementById("car-list");
 const carDetailsContainer = document.getElementById("car-details");
-let cars = []; // Global array to hold our database records
+let cars = [];
 
-// 1. UI Feedback: Loading state
 function showLoading() {
     if (carListContainer) {
         carListContainer.innerHTML = `<div class="loading">Fetching real data from database...</div>`;
     }
 }
 
-// 2. UI Feedback: Error state
 function showError(message) {
     if (carListContainer) {
         carListContainer.innerHTML = `<div class="error" style="color: #ff4d4d; padding: 20px;">${message}</div>`;
     }
 }
 
-// 3. THE CORE FUNCTION: Load and Filter
 async function loadCars() {
     showLoading();
 
@@ -26,14 +23,11 @@ async function loadCars() {
 
         const rawData = await response.json();
 
-        // DEBUG 1: See if data actually arrived
-        console.log("Data from DB:", rawData);
-
         cars = rawData.map(dbRow => {
-            // Check if image exists, otherwise use placeholder immediately
+            // Check if image path is empty or explicitly NULL
             let carImage = dbRow.image_path;
-            if (!carImage || carImage.trim() === "" || carImage === "NULL") {
-                carImage = 'assets/images/placeholder.jpg';
+            if (!carImage || carImage.trim() === "" || carImage.toLowerCase() === "null") {
+                carImage = 'assets/images/placeholder-car.png';
             }
 
             return {
@@ -50,14 +44,10 @@ async function loadCars() {
         const searchQuery = urlParams.get('search');
 
         if (searchQuery && searchQuery.trim() !== "") {
-            // DEBUG 2: Confirm the JS sees the URL word
-            console.log("Searching for:", searchQuery);
+            const searchInput = document.getElementById("search-input");
+            if (searchInput) searchInput.value = searchQuery;
 
             const filteredResults = filterCars(searchQuery);
-
-            // DEBUG 3: Check how many cars were found
-            console.log("Cars found:", filteredResults.length);
-
             displayCars(filteredResults);
         } else {
             displayCars(cars);
@@ -69,7 +59,6 @@ async function loadCars() {
     }
 }
 
-// 4. THE RENDERER: Put HTML on the screen
 function displayCars(list) {
     if (!carListContainer) return;
 
@@ -93,7 +82,7 @@ function displayCars(list) {
                 <img src="${car.image}" 
                      alt="${car.brand} ${car.name}" 
                      style="width: 100%; height: 100%; object-fit: cover;"
-                     onerror="this.src='assets/images/placeholder.jpg'">
+                     onerror="this.src='assets/images/placeholder-car.png'">
             </div>
             <div class="car-card-content" style="padding: 15px;">
                 <h3 style="margin: 0; color: #333;">${car.brand} ${car.name}</h3>
@@ -110,18 +99,15 @@ function displayCars(list) {
     });
 }
 
-// 5. THE BRAIN: Logic for matching queries
 function matchesCar(car, query) {
     if (!query) return true;
     const q = query.toLowerCase().trim();
 
-    // Specific tag-based filtering
     if (q === 'popular') return car.isPopular === true;
     if (q === 'luxury') return car.isLuxury === true;
     if (q === 'used') return car.isUsed === true;
     if (q === 'new') return car.isUsed === false;
 
-    // General text search across multiple fields
     return (
         car.name.toLowerCase().includes(q) ||
         car.brand.toLowerCase().includes(q) ||
@@ -132,13 +118,11 @@ function matchesCar(car, query) {
     );
 }
 
-// 6. HELPER: Filter the global array
 function filterCars(query) {
     return cars.filter(car => matchesCar(car, query));
 }
 
 function showCarDetails(carId) {
-    console.log("Redirecting to details for car:", carId);
     window.location.href = `car-details.php?id=${carId}`;
 }
 
@@ -147,7 +131,6 @@ function closeDetails() {
     if (modal) modal.style.display = "none";
 }
 
-// Initialize when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
     loadCars();
 
@@ -160,7 +143,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// Make functions globally available
 window.showCarDetails = showCarDetails;
 window.closeDetails = closeDetails;
-
