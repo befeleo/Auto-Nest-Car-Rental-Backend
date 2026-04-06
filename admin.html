@@ -1,314 +1,397 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="css/admin.css" />
+    <link rel="shortcut icon" href="assets/favicon/car.png" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.js"></script>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="css/admin.css" />
-  <link rel="shortcut icon" href="assets/favicon/car.png" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.js"></script>
-</head>
-
-<body>
-  <div class="admin-wrapper">
-    <aside class="admin-sidebar">
-      <div class="logo">Auto Nest <span>Admin</span></div>
-      <nav id="admin-nav">
-        <a href="#" class="nav-link active" data-section="dashboard">
-          <img src="assets/icons/chart-simple-solid.svg" alt="" class="nav-icon" />Dashboard
-        </a>
-        <a href="#" class="nav-link" data-section="inventory">
-          <img src="assets/icons/car-side-solid.svg" alt="car" class="nav-icon" />Manage Inventory
-        </a>
-        <a href="#" class="nav-link" data-section="bookings">
-          <img src="assets/icons/calendar-solid.svg" alt="book" class="nav-icon" />Bookings
-        </a>
-        <a href="#" class="nav-link" data-section="customers">
-          <img src="assets/icons/users-solid.svg" alt="customers" class="nav-icon" />Customers
-        </a>
-        <a href="index.html" class="nav-link" data-section="site">
-          <img src="assets/icons/globe-solid.svg" alt="website" class="nav-icon" />View Site
-        </a>
-
-        <a href="#" class="nav-link" data-section="setting">
-          <img src="assets/icons/gear-solid.svg" alt="setting" class="nav-icon" />Settings
-        </a>
-
-        <div class="sidebar-footer">
-          <a href="#" class="nav-link" data-section="logout" id="logoutBtn">
-            <img src="assets/icons/arrow-right-from-bracket-solid.svg" alt="logout" class="nav-icon" />Logout
+  <body>
+    <div class="admin-wrapper">
+      <aside class="admin-sidebar">
+        <div class="logo">Auto Nest <span>Admin</span></div>
+        <nav id="admin-nav">
+          <a href="#" class="nav-link active" data-section="dashboard">
+            <img
+              src="assets/icons/chart-simple-solid.svg"
+              alt=""
+              class="nav-icon"
+            />Dashboard
           </a>
-        </div>
-      </nav>
-    </aside>
+          <a href="#" class="nav-link" data-section="inventory">
+            <img
+              src="assets/icons/car-side-solid.svg"
+              alt="car"
+              class="nav-icon"
+            />Manage Inventory
+          </a>
+          <a href="#" class="nav-link" data-section="bookings">
+            <img
+              src="assets/icons/calendar-solid.svg"
+              alt="book"
+              class="nav-icon"
+            />Bookings
+          </a>
+          <a href="#" class="nav-link" data-section="customers">
+            <img
+              src="assets/icons/users-solid.svg"
+              alt="customers"
+              class="nav-icon"
+            />Customers
+          </a>
+          <a href="index.html" class="nav-link" data-section="site">
+            <img
+              src="assets/icons/globe-solid.svg"
+              alt="website"
+              class="nav-icon"
+            />View Site
+          </a>
 
-    <div class="main-body-wrapper">
-      <header>
-        <h1>Admin Management</h1>
-      </header>
+          <a href="#" class="nav-link" data-section="setting">
+            <img
+              src="assets/icons/gear-solid.svg"
+              alt="setting"
+              class="nav-icon"
+            />Settings
+          </a>
 
-      <main>
-        <div id="dashboard-section" class="content-section active-section">
-          <header class="inventory-header">
-            <h1>Dashboard</h1>
-          </header>
-          <section class="content-section active-section">
-            <div class="dashboard-cards">
-              <div class="dash-card">
-                <h4>Total Cars</h4>
-                <p id="dash-total-cars">0</p>
-              </div>
-              <div class="dash-card">
-                <h4>Total Bookings</h4>
-                <p id="dash-total-bookings">0</p>
-              </div>
-              <div class="dash-card">
-                <h4>Available Cars</h4>
-                <p id="dash-available-cars">0</p>
-              </div>
-              <div class="dash-card">
-                <h4>Customers</h4>
-                <p id="dash-customers">0</p>
-              </div>
-            </div>
-
-            <section id="charts-container" class="dashboard-charts"></section>
-          </section>
-        </div>
-        <div id="inventory-section" class="content-section">
-          <header class="inventory-header">
-            <h1>Manage Inventory</h1>
-            <button id="openModalBtn" type="button">+ Add New Car</button>
-          </header>
-
-          <section class="admin-table">
-            <h3>Current Inventory</h3>
-            <div class="table-scroll">
-              <table id="car-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>BRAND</th>
-                    <th>MODEL</th>
-                    <th>TYPE</th>
-                    <th>PRICE (Day)</th>
-                    <th>ACTIONS</th>
-                  </tr>
-                </thead>
-                <tbody id="admin-car-list"></tbody>
-              </table>
-            </div>
-          </section>
-        </div>
-
-        <div id="bookings-section" class="content-section">
-          <header class="inventory-header">
-            <h1>Manage Bookings</h1>
-          </header>
-
-          <section class="admin-table">
-            <h3>Customer Requests</h3>
-            <div class="table-scroll">
-              <table id="booking-table">
-                <thead>
-                  <tr>
-                    <th>CUSTOMER</th>
-                    <th>VEHICLE</th>
-                    <th>PHONE</th>
-                    <th>DATE</th>
-                    <th>STATUS</th>
-                    <th>ACTIONS</th>
-                  </tr>
-                </thead>
-                <tbody id="admin-booking-list"></tbody>
-              </table>
-            </div>
-          </section>
-        </div>
-
-        <div id="customers-section" class="content-section">
-          <header class="inventory-header">
-            <h1>Manage Customers</h1>
-          </header>
-
-          <div class="under-construction">
-            <div class="construction-icon">🚧</div>
-            <h2>Section Under Construction</h2>
-            <p>
-              We are currently working on the customer management system. This
-              feature will be available soon!
-            </p>
-            <a href="index.html" class="toggle-btn">Back to Home</a>
+          <div class="sidebar-footer">
+            <a href="#" class="nav-link" data-section="logout" id="logoutBtn">
+              <img
+                src="assets/icons/arrow-right-from-bracket-solid.svg"
+                alt="logout"
+                class="nav-icon"
+              />Logout
+            </a>
           </div>
-        </div>
+        </nav>
+      </aside>
 
-        <div id="setting-section" class="content-section">
-          <header class="inventory-header">
-            <h1>Setting</h1>
-          </header>
-          <div class="settings-grid">
-            <div class="settings-sub-card">
-              <h4>Admin Profile</h4>
-              <div class="profile-upload-container">
-                <div class="profile-preview">
-                  <img src="assets/icons/user-solid.svg" alt="Profile" id="profile-img-preview" />
+      <div class="main-body-wrapper">
+
+        <main>
+          <div id="dashboard-section" class="content-section active-section">
+            <header class="inventory-header">
+              <h1>Dashboard</h1>
+            </header>
+            <section class="content-section active-section">
+              <div class="dashboard-cards">
+                <div class="dash-card">
+                  <h4>Total Cars</h4>
+                  <p id="dash-total-cars">0</p>
                 </div>
-                <label for="admin-photo-upload" id="change-admin-photo">
-                  Change Photo
-                </label>
-                <input type="file" id="admin-photo-upload" accept="image/*" />
+                <div class="dash-card">
+                  <h4>Total Bookings</h4>
+                  <p id="dash-total-bookings">0</p>
+                </div>
+                <div class="dash-card">
+                  <h4>Available Cars</h4>
+                  <p id="dash-available-cars">0</p>
+                </div>
+                <div class="dash-card">
+                  <h4>Customers</h4>
+                  <p id="dash-customers">0</p>
+                </div>
               </div>
-              <form class="setting-form-grid">
-                <input type="text" id="admin-name" placeholder="Full Name" />
-                <input type="email" id="admin-email" placeholder="Email" />
 
-                <div class="password-display-group">
-                  <div class="input-wrapper">
-                    <input type="password" id="admin-pass-display" value="********" readonly />
-                    <button type="button" class="btn-text">Change</button>
+              <section id="charts-container" class="dashboard-charts"></section>
+            </section>
+          </div>
+          <div id="inventory-section" class="content-section">
+            <header class="inventory-header">
+              <h1>Manage Inventory</h1>
+              <button id="openModalBtn" type="button">+ Add New Car</button>
+            </header>
+
+            <section class="admin-table">
+              <h3>Current Inventory</h3>
+              <div class="table-scroll">
+                <table id="car-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>BRAND</th>
+                      <th>MODEL</th>
+                      <th>TYPE</th>
+                      <th>PRICE (Day)</th>
+                      <th>ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-car-list"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <div id="bookings-section" class="content-section">
+            <header class="inventory-header">
+              <h1>Manage Bookings</h1>
+            </header>
+
+            <section class="admin-table">
+              <h3>Customer Requests</h3>
+              <div class="table-scroll">
+                <table id="booking-table">
+                  <thead>
+                    <tr>
+                      <th>CUSTOMER</th>
+                      <th>VEHICLE</th>
+                      <th>PHONE</th>
+                      <th>DATE</th>
+                      <th>STATUS</th>
+                      <th>ACTIONS</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-booking-list"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <div id="customers-section" class="content-section">
+            <header class="inventory-header">
+              <h1>Manage Customers</h1>
+            </header>
+
+            <div class="under-construction">
+              <div class="construction-icon">🚧</div>
+              <h2>Section Under Construction</h2>
+              <p>
+                We are currently working on the customer management system. This
+                feature will be available soon!
+              </p>
+              <a href="index.html" class="toggle-btn">Back to Home</a>
+            </div>
+          </div>
+
+          <div id="setting-section" class="content-section">
+            <header class="inventory-header">
+              <h1>Setting</h1>
+            </header>
+            <div class="settings-grid">
+              <div class="settings-sub-card">
+                <h4>Admin Profile</h4>
+                <div class="profile-upload-container">
+                  <div class="profile-preview">
+                    <img
+                      src="assets/icons/user-solid.svg"
+                      alt="Profile"
+                      id="profile-img-preview"
+                    />
                   </div>
+                  <label for="admin-photo-upload" id="change-admin-photo">
+                    Change Photo
+                  </label>
+                  <input type="file" id="admin-photo-upload" accept="image/*" />
                 </div>
-              </form>
-            </div>
+                <form class="setting-form-grid">
+                  <input type="text" id="admin-name" placeholder="Full Name" />
+                  <input type="email" id="admin-email" placeholder="Email" />
 
-            <div class="settings-sub-card">
-              <h4>System Preferences</h4>
-              <div class="checkbox-group vertical">
-                <label>
-                  <input type="checkbox" />
-                  Receive Booking Notifications
-                </label>
-                <label>
-                  <input type="checkbox" />
-                  Enable Maintenance Mode
-                </label>
-                <label>
-                  <input type="checkbox" />
-                  Show Inventory Alerts
-                </label>
+                  <div class="password-display-group">
+                    <div class="input-wrapper">
+                      <input
+                        type="password"
+                        id="admin-pass-display"
+                        value="********"
+                        readonly
+                      />
+                      <button type="button" class="btn-text">Change</button>
+                    </div>
+                  </div>
+                </form>
               </div>
-              <h4 class="currency-format-heading">Currency Format</h4>
-              <select id="currency-select" title="currency-select">
-                <option value="ETB">Ethiopian Birr (Br)</option>
-                <option value="USD">USD ($)</option>
-              </select>
-            </div>
 
-            <div class="settings-sub-card">
-              <h4>Account Actions</h4>
-              <div class="account-buttons">
-                <button type="button" class="btn-switch-account">
-                  Switch Account
-                </button>
-                <button type="button" class="btn-logout-account">
-                  Log Out
-                </button>
+              <div class="settings-sub-card">
+                <h4>System Preferences</h4>
+                <div class="checkbox-group vertical">
+                  <label>
+                    <input type="checkbox" />
+                    Receive Booking Notifications
+                  </label>
+                  <label>
+                    <input type="checkbox" />
+                    Enable Maintenance Mode
+                  </label>
+                  <label>
+                    <input type="checkbox" />
+                    Show Inventory Alerts
+                  </label>
+                </div>
+                <h4 class="currency-format-heading">Currency Format</h4>
+                <select id="currency-select" title="currency-select">
+                  <option value="ETB">Ethiopian Birr (Br)</option>
+                  <option value="USD">USD ($)</option>
+                </select>
               </div>
+
+              <div class="settings-sub-card">
+                <h4>Account Actions</h4>
+                <div class="account-buttons">
+                  <button type="button" class="btn-switch-account">
+                    Switch Account
+                  </button>
+                  <button type="button" class="btn-logout-account">
+                    Log Out
+                  </button>
+                </div>
+              </div>
+              <button type="button" class="update-setting">
+                Update Setting
+              </button>
             </div>
-            <button type="button" class="update-setting">
-              Update Setting
-            </button>
           </div>
-        </div>
 
-        <div id="formModal" class="modal-overlay">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h3 id="modalTitle">Add New Vehicle</h3>
-              <span id="closeModalBtn">&times;</span>
-            </div>
+          <div id="formModal" class="modal-overlay">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h3 id="modalTitle">Add New Vehicle</h3>
+                <span id="closeModalBtn">&times;</span>
+              </div>
 
-            <!-- form -->
-            <form id="add-car-form" enctype="multipart/form-data" method="POST">
-              <input type="hidden" id="edit-id" name="id" />
-              <div class="form-grid">
-                <div class="form-group">
-                  <label>Brand <span class="required">*</span></label>
-                  <input type="text" id="brand" name="brand" placeholder="Brand" required />
-                </div>
+              <!-- form -->
+              <form
+                id="add-car-form"
+                enctype="multipart/form-data"
+                method="POST"
+              >
+                <input type="hidden" id="edit-id" name="id" />
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label>Brand <span class="required">*</span></label>
+                    <input
+                      type="text"
+                      id="brand"
+                      name="brand"
+                      placeholder="Brand"
+                      required
+                    />
+                  </div>
 
-                <div class="form-group">
-                  <label>Model Name <span class="required">*</span></label>
-                  <input type="text" id="name" name="name" placeholder="Model" required />
-                </div>
+                  <div class="form-group">
+                    <label>Model Name <span class="required">*</span></label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      placeholder="Model"
+                      required
+                    />
+                  </div>
 
-                <div class="form-group">
-                  <label>Price per Day (Birr)<span class="required">*</span></label>
-                  <input type="number" id="price" name="price" placeholder="Price" required />
-                </div>
+                  <div class="form-group">
+                    <label
+                      >Price per Day (Birr)<span class="required"
+                        >*</span
+                      ></label
+                    >
+                    <input
+                      type="number"
+                      id="price"
+                      name="price"
+                      placeholder="Price"
+                      required
+                    />
+                  </div>
 
-                <div class="form-group">
-                  <label>Fuel Type <span class="required">*</span></label>
-                  <select title="fuelype" id="fuelType" name="fuelType" required>
-                     <option value="" disabled selected>
+                  <div class="form-group">
+                    <label>Fuel Type <span class="required">*</span></label>
+                    <select
+                      title="fuelype"
+                      id="fuelType"
+                      name="fuelType"
+                      required
+                    >
+                      <option value="" disabled selected>
                         Select Fuel Type
                       </option>
-                    <option value="Petrol">Petrol</option>
-                    <option value="Diesel">Diesel</option>
-                    <option value="Electric">Electric</option>
-                  </select>
-                </div>
+                      <option value="Petrol">Petrol</option>
+                      <option value="Diesel">Diesel</option>
+                      <option value="Electric">Electric</option>
+                    </select>
+                  </div>
 
-                <div class="form-group">
-                  <label>Body Type <span class="required">*</span></label>
-                  <select title="bodyType" id="bodyType" name="bodyType" required>
+                  <div class="form-group">
+                    <label>Body Type <span class="required">*</span></label>
+                    <select
+                      title="bodyType"
+                      id="bodyType"
+                      name="bodyType"
+                      required
+                    >
                       <option value="" disabled selected>
                         Select Body Type
                       </option>
-                    <option value="SUV">SUV</option>
-                    <option value="Sedan">Sedan</option>
-                    <option value="Pickup">Pickup</option>
-                    <option value="Hatchback">Hatchback</option>
-                  </select>
-                </div>
+                      <option value="SUV">SUV</option>
+                      <option value="Sedan">Sedan</option>
+                      <option value="Pickup">Pickup</option>
+                      <option value="Hatchback">Hatchback</option>
+                    </select>
+                  </div>
 
-                <div class="form-group">
-                  <label>Transmission <span class="required">*</span></label>
-                  <select title="transmission" id="transmission" name="transmission" required>
+                  <div class="form-group">
+                    <label>Transmission <span class="required">*</span></label>
+                    <select
+                      title="transmission"
+                      id="transmission"
+                      name="transmission"
+                      required
+                    >
                       <option value="" disabled selected>
                         Select Transmission
                       </option>
-                    <option value="Automatic">Automatic</option>
-                    <option value="Manual">Manual</option>
-                  </select>
+                      <option value="Automatic">Automatic</option>
+                      <option value="Manual">Manual</option>
+                    </select>
+                  </div>
                 </div>
-              </div>
 
-              <div class="file-upload-group">
-                <label for="image-upload">Car Image:</label>
-                <input type="file" id="image-upload" name="car_image" />
-              </div>
+                <div class="file-upload-group">
+                  <label for="image-upload">Car Image:</label>
+                  <input type="file" id="image-upload" name="car_image" />
+                </div>
 
-              <div class="checkbox-group">
-                <label><input type="checkbox" id="isUsed" name="isUsed" />
-                  Used</label>
-                <label><input type="checkbox" id="isPopular" name="isPopular" />
-                  Popular</label>
-                <label><input type="checkbox" id="isLuxury" name="isLuxury" />
-                  Luxury Fleet</label>
-              </div>
+                <div class="checkbox-group">
+                  <label
+                    ><input type="checkbox" id="isUsed" name="isUsed" />
+                    Used</label
+                  >
+                  <label
+                    ><input type="checkbox" id="isPopular" name="isPopular" />
+                    Popular</label
+                  >
+                  <label
+                    ><input type="checkbox" id="isLuxury" name="isLuxury" />
+                    Luxury Fleet</label
+                  >
+                </div>
 
-              <div class="form-group">
-                <label>Key Features</label>
-                <textarea id="features" name="features" placeholder="AC, Bluetooth, GPS"></textarea>
-              </div>
+                <div class="form-group">
+                  <label>Key Features</label>
+                  <textarea
+                    id="features"
+                    name="features"
+                    placeholder="AC, Bluetooth, GPS"
+                  ></textarea>
+                </div>
 
-              <div class="form-action">
-                <button type="submit" class="btn-save" id="saveBtn">
-                  Save Vehicle
-                </button>
-              </div>
-            </form>
+                <div class="form-action">
+                  <button type="submit" class="btn-save" id="saveBtn">
+                    Save Vehicle
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
-  </div>
-  <script src="js/admin.js"></script>
-  <script src="js/dashboard.js"></script>
-  <script src="js/auth.js"></script>
-</body>
-
+    <script src="js/admin.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/auth.js"></script>
+  </body>
 </html>
