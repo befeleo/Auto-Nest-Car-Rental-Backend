@@ -196,9 +196,9 @@
     const section = $id('extra-fields-section');
     const grid = $id('extra-fields-grid');
     const excluded = new Set([
-      'id','brand','name','price','bodyType','fuelType','transmission','isUsed','isPopular','isLuxury','features',
-      'image','image_path','imagePath','detailImage','detail_image','description','rating','reviews','available',
-      'seats','engine','color','mileage','year','fuelEfficiency','power','torque',
+      'id', 'brand', 'name', 'price', 'bodyType', 'fuelType', 'transmission', 'isUsed', 'isPopular', 'isLuxury', 'features',
+      'image', 'image_path', 'imagePath', 'detailImage', 'detail_image', 'description', 'rating', 'reviews', 'available',
+      'seats', 'engine', 'color', 'mileage', 'year', 'fuelEfficiency', 'power', 'torque',
     ]);
 
     const extras = Object.entries(car._raw || {}).filter(([k, v]) => !excluded.has(k) && v != null && v !== '');
@@ -417,7 +417,6 @@
     if (main) imgs.push({ src: main, label: 'Main View' });
     const detail = raw.detailImage || raw.detail_image;
     if (detail && typeof detail === 'object') {
-      if (detail.interior) imgs.push({ src: detail.interior, label: 'Interior' });
       if (detail.side) imgs.push({ src: detail.side, label: 'Side View' });
       if (detail.dashboard) imgs.push({ src: detail.dashboard, label: 'Dashboard' });
     }
