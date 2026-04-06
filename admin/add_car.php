@@ -1,5 +1,11 @@
 <?php
 header('Content-Type: application/json');
+session_start();
+if (empty($_SESSION['autonest_admin'])) {
+    http_response_code(401);
+    echo json_encode(["status" => "error", "message" => "Unauthorized"]);
+    exit;
+}
 include '../database/db_connect.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

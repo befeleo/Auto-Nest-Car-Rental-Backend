@@ -85,17 +85,11 @@ function displayCars(list) {
         carCard.className = 'car-card';
 
         carCard.innerHTML = `
-            <div class="car-card-image">
-                <img src="${car.image}" alt="${car.brand}" onerror="this.src='assets/images/placeholder.jpg'">
-            </div>
-            <div class="car-card-content">
-                <h3>${car.brand} ${car.name}</h3>
-                <p class="price"><strong>${Number(car.price).toLocaleString()}</strong> birr / day</p>
-                <p class="specs">${car.bodyType} • ${car.fuelType} • ${car.transmission}</p>
-                <button onclick="window.location.href='car-details.html?id=${car.id}'" class="toggle-btn">
-                    View Details
-                </button>
-            </div>
+            <img src="${car.image}" alt="${car.brand} ${car.name}" onerror="this.src='assets/images/placeholder.jpg'">
+            <h3>${car.brand} ${car.name}</h3>
+            <p><strong>${car.price}</strong> birr / day</p>
+            <p>${car.bodyType} • ${car.fuelType}</p>
+            <button onclick="window.location.href='car-details.php?id=${car.id}'" class="toggle-btn" >View Details</button>
         `;
         carListContainer.appendChild(carCard);
     });
@@ -140,4 +134,13 @@ document.addEventListener("DOMContentLoaded", () => {
             displayCars(filterCars(query));
         });
     }
+<<<<<<< HEAD
 });
+=======
+});
+
+// Make functions globally available
+window.showCarDetails = showCarDetails;
+window.closeDetails = closeDetails;
+
+>>>>>>> 97b62861e5edfae26df6cc0e7bb02d5b1ec2c80f

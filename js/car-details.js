@@ -1,175 +1,51 @@
 (() => {
   'use strict';
 
-  const DB_CARS_ENDPOINT = 'admin/get_cars.php';
-  const FALLBACK_IMAGE = 'assets/images/logo.png';
-  window.CAR_DETAILS_ENDPOINT = DB_CARS_ENDPOINT;
+  const FALLBACK_IMAGE = 'assets/images/placeholder-car.png';
 
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const $ = (sel, root = document) => root.querySelector(sel);
-  const $id = (id) => document.getElementById(id);
-
-  const state = {
-    loading: $id('page-loading'),
-    error: $id('page-error'),
-    content: $id('page-content'),
-    errorTitle: $id('error-title'),
-    errorMsg: $id('error-message'),
-  };
-  if (!state.loading || !state.error || !state.content) return;
 
   document.addEventListener('DOMContentLoaded', () => {
-    console.info('[car-details] loading from', DB_CARS_ENDPOINT);
-    main().catch((e) => (console.error(e), showError('Error', 'Failed to load car.')));
+    const loading = document.getElementById('page-loading');
+    if (loading) loading.hidden = true;
+    initGallery();
   });
 
-  async function main() {
-    const carId = new URLSearchParams(location.search).get('id');
-    if (!carId) return (location.href = 'services.html');
-    showLoading();
-
-    const cars = await getCars();
-    const raw = cars.find((c) => String(c.id) === String(carId));
-    if (!raw) return showError('Car Not Found', 'The requested car could not be found.');
-
-    const car = norm(raw);
-    window.currentCar = car;
-    render(car);
-    renderRelated(cars, raw);
-    initBooking();
-    showContent();
-  }
-
-  async function getCars() {
-    const res = await fetch(DB_CARS_ENDPOINT, { headers: { Accept: 'application/json' } });
-    if (!res.ok) throw new Error(`Failed to load cars (${res.status})`);
-    const data = await res.json();
-    if (data && typeof data === 'object' && data.error) throw new Error(data.error);
-    if (!Array.isArray(data)) throw new Error('Invalid cars response');
-    return data;
-  }
-
-  function norm(raw) {
-    return {
-      _raw: raw,
-      id: toInt(raw.id),
-      brand: raw.brand ?? '',
-      name: raw.name ?? '',
-      price: toNumber(raw.price) ?? 0,
-      isUsed: toBool(raw.isUsed),
-      isPopular: toBool(raw.isPopular),
-      isLuxury: toBool(raw.isLuxury),
-      available: raw.available == null ? null : toBool(raw.available),
-      features: parseFeatures(raw.features),
-      images: collectImages(raw),
-    };
-  }
-
-  function render(car) {
-    const title = `${car.brand} ${car.name}`.trim() || 'Car';
-
-    renderBreadcrumb(title);
-    renderBadges(car);
-
-    $id('daily-rate').textContent = formatNumber(car.price);
-    $id('weekly-rate').textContent = formatNumber(car.price * 7 * 0.85);
-    $id('display-daily-rate').textContent = formatNumber(car.price);
-
-    const titleEl = $id('car-title');
-    titleEl.textContent = title;
-    if (car._raw.year != null && car._raw.year !== '') {
-      const yearEl = document.createElement('span');
-      yearEl.className = 'car-brand';
-      yearEl.textContent = String(car._raw.year);
-      titleEl.append(' ');
-      titleEl.appendChild(yearEl);
-    }
-    const rating = toNumber(car._raw.rating) ?? 4.0;
-    const reviews = toInt(car._raw.reviews) ?? 50;
-    $id('car-stars').innerHTML = stars(rating);
-    $id('car-rating-text').textContent = `${rating} (${reviews} reviews)`;
-
-    const descWrap = $id('car-description-container');
-    const desc = $id('car-description');
-    if (car._raw.description) {
-      descWrap.hidden = false;
-      desc.textContent = String(car._raw.description);
-    } else {
-      descWrap.hidden = true;
-      desc.textContent = '';
-    }
-
-    renderGallery(car.images);
-    renderSpecs('#primary-specs-section', '#primary-specs', primarySpecs(car));
-    renderFeatures(car.features);
-    renderSpecs('#additional-specs-section', '#additional-specs', additionalSpecs(car));
-    renderExtraFields(car);
-
-    $id('car-id').value = String(car.id ?? '');
-    $id('car-name').value = title;
-    $id('daily-rate-input').value = String(car.price);
-  }
-
-  function renderBreadcrumb(title) {
-    const bc = $id('breadcrumb');
-    bc.innerHTML = '';
-    bc.appendChild(link('index.html', 'Home'));
-    bc.append(' > ');
-    bc.appendChild(link('services.html', 'Car Service'));
-    bc.append(' > ');
-    const s = document.createElement('span');
-    s.textContent = title;
-    bc.appendChild(s);
-  }
-
-  function renderBadges(car) {
-    const wrap = $id('status-badges');
-    wrap.innerHTML = '';
-    if (car.isPopular) wrap.appendChild(badge('popular', 'Popular'));
-    if (car.isLuxury) wrap.appendChild(badge('luxury', 'Luxury'));
-    if (car.isUsed === true) wrap.appendChild(badge('used', 'Used'));
-    if (car.isUsed === false) wrap.appendChild(badge('new', 'New'));
-    wrap.appendChild(car.available === false ? badge('used', 'Not Available') : badge('available', 'Available'));
-  }
-
-  function renderGallery(images) {
-    const main = $id('main-image');
+  function initGallery() {
+    const main = document.getElementById('main-image');
+    const thumbs = document.getElementById('thumbnail-gallery');
     const nav = $('.image-nav');
     const prev = $('.prev-btn');
     const next = $('.next-btn');
-    const thumbs = $id('thumbnail-gallery');
 
-    const imgs = images?.length ? images : [{ src: FALLBACK_IMAGE, label: 'Car Image' }];
-    let idx = 0;
+    if (!main || !thumbs) return;
 
-    const setMain = () => {
-      main.src = imgs[idx]?.src || FALLBACK_IMAGE;
-      main.alt = imgs[idx]?.label || 'Car image';
+    const buttons = $$('button.thumbnail', thumbs);
+    if (buttons.length === 0) return;
+
+    let idx = buttons.findIndex((b) => b.classList.contains('active'));
+    if (idx < 0) idx = 0;
+
+    const setActive = (i) => {
+      idx = (i + buttons.length) % buttons.length;
+      buttons.forEach((b, j) => b.classList.toggle('active', j === idx));
+      const img = $('img', buttons[idx]);
+      if (!img) return;
+      main.src = img.getAttribute('src') || FALLBACK_IMAGE;
+      main.alt = img.getAttribute('alt') || 'Car image';
     };
-    const sync = () => thumbs.querySelectorAll('.thumbnail').forEach((t, i) => t.classList.toggle('active', i === idx));
 
-    thumbs.innerHTML = '';
-    imgs.forEach((img, i) => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = `thumbnail${i === 0 ? ' active' : ''}`;
-      const im = document.createElement('img');
-      im.src = img.src;
-      im.alt = img.label;
-      im.onerror = () => (im.src = FALLBACK_IMAGE);
-      const lab = document.createElement('span');
-      lab.className = 'thumbnail-label';
-      lab.textContent = img.label;
-      b.append(im, lab);
-      b.addEventListener('click', () => (idx = i, setMain(), sync()));
-      thumbs.appendChild(b);
-    });
+    buttons.forEach((b, i) => b.addEventListener('click', () => setActive(i)));
+    if (prev) prev.addEventListener('click', () => setActive(idx - 1));
+    if (next) next.addEventListener('click', () => setActive(idx + 1));
 
-    const visible = imgs.length > 1;
-    nav.style.display = visible ? '' : 'none';
+    const visible = buttons.length > 1;
+    if (nav) nav.style.display = visible ? '' : 'none';
     thumbs.style.display = visible ? '' : 'none';
-    prev.onclick = visible ? () => (idx = (idx - 1 + imgs.length) % imgs.length, setMain(), sync()) : null;
-    next.onclick = visible ? () => (idx = (idx + 1) % imgs.length, setMain(), sync()) : null;
-    setMain();
+
+    main.onerror = () => (main.src = FALLBACK_IMAGE);
+    setActive(idx);
   }
 
   function renderSpecs(sectionSel, gridSel, items) {
@@ -545,3 +421,4 @@
   }
 
 })();
+
