@@ -47,13 +47,20 @@ filterOptions.forEach(filter => {
 });
 
 async function loadPopularCars() {
-    const carData = 'data/cars.json';
+    const carData = 'popular_cars.php';
 
     try {
         const response = await fetch(carData);
-        const allCars = await response.json();
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
 
-        const popularCars = allCars.filter(car => car.isPopular === true).slice(0, 8);
+        const popularCars = await response.json();
+
+        if (!Array.isArray(popularCars)) {
+            throw new Error('Invalid popular cars response.');
+        }
+
         popularCarGrid.innerHTML = ""
 
         popularCars.forEach(car => {
@@ -67,7 +74,7 @@ async function loadPopularCars() {
             };
 
             carCard.innerHTML = `
-                <img src="${car.image}" alt="${car.brand} ${car.name}">
+                <img src="${car.image || car.image_path || 'assets/images/logo.png'}" alt="${car.brand} ${car.name}">
                 <h3>${car.brand} ${car.name}</h3>
                 <p class="price">${car.price} Birr</p>
             `;
