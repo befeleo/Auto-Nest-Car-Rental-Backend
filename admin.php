@@ -325,7 +325,7 @@ if (empty($_SESSION['autonest_admin'])) {
   </div>
   <script src="js/admin.js"></script>
   <script src="js/dashboard.js"></script>
-  <!-- <script src="js/auth.js"></script> -->
+  <script src="js/auth.js"></script>
 </body>
 
 </html>
