@@ -12,16 +12,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $id = $_POST['id'] ?? null;
 
-        if (!$id) {
-            echo json_encode(["status" => "error", "message" => "No ID provided"]);
-            exit;
+        if ($id) {
+            $stmt = $pdo->prepare("SELECT image_path, image_side, image_dashboard FROM cars WHERE id = ?");
+            $stmt->execute([$id]);
+            $car = $stmt->fetch();
+
+            if ($car) {
+                $imageColumns = ['image_path', 'image_side', 'image_dashboard'];
+
+                foreach ($imageColumns as $column) {
+                    $relativeSelector = $car[$column];
+
+                    if (!empty($relativeSelector)) {
+                        $fullPath = '../' . $relativeSelector;
+
+                        if (file_exists($fullPath) && strpos($relativeSelector, 'placeholder.png') === false) {
+                            unlink($fullPath);
+                        }
+                    }
+                }
+            }
+
+            $sql = "DELETE FROM cars WHERE id = ?";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$id]);
+
+            echo json_encode(["status" => "success", "message" => "Car and all associated images deleted!"]);
         }
-
-        $sql = "DELETE FROM cars WHERE id = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$id]);
-
-        echo json_encode(["status" => "success", "message" => "Vehicle deleted from database"]);
     } catch (Exception $e) {
         echo json_encode(["status" => "error", "message" => $e->getMessage()]);
     }
