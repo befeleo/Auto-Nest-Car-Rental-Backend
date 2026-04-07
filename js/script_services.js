@@ -2,72 +2,98 @@ const carListContainer = document.getElementById("car-list");
 const carDetailsContainer = document.getElementById("car-details");
 let cars = [];
 
-// Add loading indicator
 function showLoading() {
-    carListContainer.innerHTML = `<div class="loading">Loading cars...</div>`;
+    if (carListContainer) {
+        carListContainer.innerHTML = `<div class="loading">Fetching real data from database...</div>`;
+    }
 }
 
-// Add error display
 function showError(message) {
-    carListContainer.innerHTML = `<div class="error">${message}</div>`;
+    if (carListContainer) {
+        carListContainer.innerHTML = `<div class="error" style="color: #ff4d4d; padding: 20px;">${message}</div>`;
+    }
 }
 
-// Load cars from JSON
 async function loadCars() {
     showLoading();
 
     try {
-        console.log('Attempting to load cars from database via get_cars.php...');
-
         const response = await fetch('admin/get_cars.php');
+        if (!response.ok) throw new Error("Could not connect to get_cars.php");
 
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status} ${response.statusText}`);
-        }
+        const rawData = await response.json();
 
-        const data = await response.json();
+        cars = rawData.map(dbRow => {
+            // Check if image path is empty or explicitly NULL
+            let carImage = dbRow.image_path;
+            if (!carImage || carImage.trim() === "" || carImage.toLowerCase() === "null") {
+                carImage = 'assets/images/placeholder-car.png';
+            }
 
-        if (data.error) {
-            throw new Error(data.error);
-        }
-
-        cars = data;
-        console.log(`Successfully loaded ${cars.length} cars from database`, cars);
+            return {
+                ...dbRow,
+                image: carImage,
+                isPopular: dbRow.isPopular == 1,
+                isLuxury: dbRow.isLuxury == 1,
+                isUsed: dbRow.isUsed == 1,
+                features: dbRow.features ? dbRow.features.split(',').map(f => f.trim()) : []
+            };
+        });
 
         const urlParams = new URLSearchParams(window.location.search);
-        const carQuery = urlParams.get('car');
+        const searchQuery = urlParams.get('search');
 
-        if (carQuery) {
-            console.log(`Filtering by brand from URL: ${carQuery}`);
-            const filteredCars = filterCars(carQuery);
-            displayCars(filteredCars);
+        if (searchQuery && searchQuery.trim() !== "") {
+            const searchInput = document.getElementById("search-input");
+            if (searchInput) searchInput.value = searchQuery;
+
+            const filteredResults = filterCars(searchQuery);
+            displayCars(filteredResults);
         } else {
             displayCars(cars);
         }
 
     } catch (error) {
-        console.error('Error loading database cars:', error);
-        showError(`Failed to load: ${error.message}<br>Check browser console/XAMPP for details.`);
+        console.error('Fetch Error:', error);
+        showError(`Database Error: ${error.message}`);
     }
 }
 
-function displayCars(list = cars) {
+function displayCars(list) {
+    if (!carListContainer) return;
+
     carListContainer.innerHTML = "";
 
     if (!list || list.length === 0) {
-        carListContainer.innerHTML = `<div class="no-results">No cars found</div>`;
+        carListContainer.innerHTML = `
+            <div class="no-results" style="grid-column: 1/-1; text-align: center; padding: 50px;">
+                <p>No cars found matching your search.</p>
+                <a href="services.php" style="color: #2996B8; text-decoration: underline;">View All Cars</a>
+            </div>`;
         return;
     }
 
     list.forEach(car => {
         const carCard = document.createElement('div');
         carCard.className = 'car-card';
+
         carCard.innerHTML = `
-            <img src="${car.image}" alt="${car.brand} ${car.name}" onerror="this.src='assets/images/placeholder.jpg'">
-            <h3>${car.brand} ${car.name}</h3>
-            <p><strong>${car.price}</strong> birr / day</p>
-            <p>${car.bodyType} • ${car.fuelType}</p>
-            <button onclick="window.location.href='car-details.html?id=${car.id}'" class="toggle-btn" >View Details</button>
+            <div class="car-image-container" style="height: 200px; overflow: hidden; background: #f4f4f4; border-radius: 20px 20px 0 0;">
+                <img src="${car.image}" 
+                     alt="${car.brand} ${car.name}" 
+                     style="width: 100%; height: 100%; object-fit: cover;"
+                     onerror="this.src='assets/images/placeholder-car.png'">
+            </div>
+            <div class="car-card-content" style="padding: 15px;">
+                <h3 style="margin: 0; color: #333;">${car.brand} ${car.name}</h3>
+                <p style="color: #2996B8; font-weight: bold; font-size: 1.1rem; margin: 10px 0;">
+                    ${Number(car.price).toLocaleString()} birr <span style="font-size: 0.8rem; color: #777;">/ day</span>
+                </p>
+                <p style="font-size: 0.9rem; color: #666;">${car.bodyType} • ${car.fuelType}</p>
+                <button onclick="window.location.href='car-details.php?id=${car.id}'" class="toggle-btn">
+                    View Details
+                </button>
+            </div>
         `;
         carListContainer.appendChild(carCard);
     });
@@ -75,27 +101,12 @@ function displayCars(list = cars) {
 
 function matchesCar(car, query) {
     if (!query) return true;
-    const q = query.toLowerCase();
+    const q = query.toLowerCase().trim();
 
-    if (q.startsWith('range-')) {
-        const price = Number(car.price);
-        switch (q) {
-            case 'range-1': return price < 2000;
-            case 'range-2': return price >= 2000 && price < 3000;
-            case 'range-3': return price >= 3000 && price < 4000;
-            case 'range-4': return price >= 4000 && price < 5000;
-            case 'range-5': return price >= 5000 && price < 6000;
-            case 'range-6': return price >= 6000;
-        }
-    }
     if (q === 'popular') return car.isPopular === true;
+    if (q === 'luxury') return car.isLuxury === true;
     if (q === 'used') return car.isUsed === true;
     if (q === 'new') return car.isUsed === false;
-    if (q === 'luxury') return car.isLuxury === true;
-    if (q === 'automatic') return car.transmission.toLowerCase() === 'automatic';
-    if (q === 'manual') return car.transmission.toLowerCase() === 'manual';
-    if (q === 'seats-5') return Number(car.seats) === 5;
-    if (q === 'seats-7') return Number(car.seats) === 7;
 
     return (
         car.name.toLowerCase().includes(q) ||
@@ -103,7 +114,7 @@ function matchesCar(car, query) {
         car.bodyType.toLowerCase().includes(q) ||
         car.fuelType.toLowerCase().includes(q) ||
         car.transmission.toLowerCase().includes(q) ||
-        car.features.some(f => f.toLowerCase().includes(q))
+        (car.features && car.features.some(f => f.toLowerCase().includes(q)))
     );
 }
 
@@ -112,59 +123,25 @@ function filterCars(query) {
 }
 
 function showCarDetails(carId) {
-    const car = cars.find(c => c.id === carId);
-    if (!car) return;
-
-    carDetailsContainer.innerHTML = `
-        <div class="car-details-box">
-            <h2>${car.brand} ${car.name}</h2>
-            <img src="${car.image}" alt="${car.name}" onerror="this.src='images/placeholder.jpg'">
-            
-            <p><strong>Price:</strong> $${car.price} / day</p>
-            <p><strong>Fuel Type:</strong> ${car.fuelType}</p>
-            <p><strong>Body Type:</strong> ${car.bodyType}</p>
-            <p><strong>Transmission:</strong> ${car.transmission}</p>
-            <p><strong>Seats:</strong> ${car.seats}</p>
-
-            <p>
-                ${car.isLuxury ? "🌟 Luxury Car<br>" : ""}
-                ${car.isPopular ? "🔥 Popular Choice<br>" : ""}
-                ${car.isUsed ? "🚗 Used Vehicle" : "🆕 New Vehicle"}
-            </p>
-
-            <h3>Features</h3>
-            <ul>
-                ${car.features.map(f => `<li>${f}</li>`).join("")}
-            </ul>
-
-            <button onclick="closeDetails()">Close</button>
-        </div>
-    `;
-
-    carDetailsContainer.style.display = "flex";
+    window.location.href = `car-details.php?id=${carId}`;
 }
 
 function closeDetails() {
-    carDetailsContainer.style.display = "none";
+    const modal = document.getElementById("car-details");
+    if (modal) modal.style.display = "none";
 }
 
-// Initialize when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
-    console.log('DOM loaded, starting car loading...');
     loadCars();
 
     const searchInput = document.getElementById("search-input");
     if (searchInput) {
-        searchInput.addEventListener("input", e => {
-            const query = e.target.value.trim();
-            const filteredCars = filterCars(query);
-            displayCars(filteredCars);
+        searchInput.addEventListener("input", (e) => {
+            const query = e.target.value;
+            displayCars(filterCars(query));
         });
     }
 });
 
-// Make functions globally available
 window.showCarDetails = showCarDetails;
 window.closeDetails = closeDetails;
-
-

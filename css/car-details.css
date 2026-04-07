@@ -189,6 +189,10 @@
   transition: all 0.3s ease;
   position: relative;
   height: 120px;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  appearance: none;
 }
 
 @media (max-width: 1200px) {
@@ -211,6 +215,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .thumbnail-label {
@@ -663,11 +668,9 @@
 .submit-btn {
   width: 100%;
   padding: 18px;
-  background: linear-gradient(
-    135deg,
-    var(--color-primary),
-    var(--color-primary-dark)
-  );
+  background: linear-gradient(135deg,
+      var(--color-primary),
+      var(--color-primary-dark));
   color: var(--bg-card);
   border: none;
   border-radius: 10px;
@@ -753,6 +756,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -776,8 +780,9 @@
 
 .related-cars-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 350px));
   gap: 30px;
+  justify-content: center;
 }
 
 .related-car-card {
@@ -833,6 +838,14 @@
   font-weight: 500;
 }
 
+/* Related Card Badges */
+.related-badges {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 /* Loading Spinner */
 .loading-spinner {
   border: 4px solid #f3f3f3;
@@ -848,28 +861,26 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
 }
 
-/* Error and Loading States */
-.loading,
-.no-results,
-.error {
+/* Page States (loading/errors) */
+.state {
   text-align: center;
-  padding: 50px;
-  font-size: 18px;
+  padding: 60px 20px;
   color: var(--text-secondary);
 }
 
-.error {
-  background: #ffebee;
-  color: #c62828;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-  margin: 20px 0;
+.state h3 {
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.state p {
+  margin: 0;
 }
 
 /* Responsive Adjustments */
@@ -888,21 +899,57 @@
   }
 }
 
-/* Utility Classes */
-.text-center {
-  text-align: center;
+/* Extra Fields (dynamic DB columns) */
+.extra-fields {
+  margin-top: 30px;
 }
 
-.mt-20 {
-  margin-top: 20px;
-}
-
-.mb-20 {
+.extra-fields h3 {
+  font-size: 22px;
+  color: #191b31;
   margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eee;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.p-20 {
-  padding: 20px;
+.extra-fields h3 i {
+  color: var(--color-primary);
+}
+
+.kv-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+@media (max-width: 768px) {
+  .kv-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kv-item {
+  background: #f8f9fa;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.kv-key {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.kv-val {
+  color: var(--text-primary);
+  font-weight: 600;
+  word-break: break-word;
 }
 
 /* Hero Button in Details Page */
@@ -923,19 +970,4 @@
 
 .hero-btn:hover {
   background: var(--color-primary-dark);
-}
-
-/* Placeholder Image Fallback */
-img[onerror] {
-  background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-img[onerror]::after {
-  content: "Image not available";
-  color: #999;
-  font-size: 14px;
-  text-align: center;
 }

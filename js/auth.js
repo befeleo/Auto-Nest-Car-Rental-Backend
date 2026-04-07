@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (loginForm) {
         const loggedIn = await isLoggedIn();
         if (loggedIn) {
-            window.location.href = "admin.html";
+            window.location.href = "admin.php";
             return;
         }
         initLogin();
@@ -52,7 +52,7 @@ function initLogin() {
             const result = await response.json();
 
             if (result.status === "success") {
-                window.location.href = "admin.html";
+                window.location.href = "admin.php";
             } else {
                 showError(result.message || "Invalid email or password");
             }
