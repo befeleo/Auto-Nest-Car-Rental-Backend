@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (empty($_SESSION['autonest_admin'])) {
+  header('Location: login.html');
+  exit;
+}
+?>
 <!doctype html>
 <html lang="en">
 
@@ -45,9 +52,6 @@
     </aside>
 
     <div class="main-body-wrapper">
-      <header>
-        <h1>Admin Management</h1>
-      </header>
 
       <main>
         <div id="dashboard-section" class="content-section active-section">
@@ -242,9 +246,9 @@
                 <div class="form-group">
                   <label>Fuel Type <span class="required">*</span></label>
                   <select title="fuelype" id="fuelType" name="fuelType" required>
-                     <option value="" disabled selected>
-                        Select Fuel Type
-                      </option>
+                    <option value="" disabled selected>
+                      Select Fuel Type
+                    </option>
                     <option value="Petrol">Petrol</option>
                     <option value="Diesel">Diesel</option>
                     <option value="Electric">Electric</option>
@@ -254,9 +258,9 @@
                 <div class="form-group">
                   <label>Body Type <span class="required">*</span></label>
                   <select title="bodyType" id="bodyType" name="bodyType" required>
-                      <option value="" disabled selected>
-                        Select Body Type
-                      </option>
+                    <option value="" disabled selected>
+                      Select Body Type
+                    </option>
                     <option value="SUV">SUV</option>
                     <option value="Sedan">Sedan</option>
                     <option value="Pickup">Pickup</option>
@@ -267,9 +271,9 @@
                 <div class="form-group">
                   <label>Transmission <span class="required">*</span></label>
                   <select title="transmission" id="transmission" name="transmission" required>
-                      <option value="" disabled selected>
-                        Select Transmission
-                      </option>
+                    <option value="" disabled selected>
+                      Select Transmission
+                    </option>
                     <option value="Automatic">Automatic</option>
                     <option value="Manual">Manual</option>
                   </select>
@@ -288,11 +292,11 @@
                 </div>
 
                 <div class="file-upload-group">
-                    <label for="image-dashboard">Dashboard View (Optional):</label>
-                    <input type="file" id="image-dashboard" name="car_image_dashboard" accept="image/*" />
+                  <label for="image-dashboard">Dashboard View (Optional):</label>
+                  <input type="file" id="image-dashboard" name="car_image_dashboard" accept="image/*" />
                 </div>
               </div>
-              
+
 
               <div class="checkbox-group">
                 <label><input type="checkbox" id="isUsed" name="isUsed" />
@@ -321,7 +325,7 @@
   </div>
   <script src="js/admin.js"></script>
   <script src="js/dashboard.js"></script>
-  <!-- <script src="js/auth.js"></script> -->
+  <script src="js/auth.js"></script>
 </body>
 
 </html>
