@@ -26,7 +26,7 @@ tabLinks.forEach((link) => {
 
 const redirectToFilter = (value) => {
     if (!value) return;
-    window.location.href = `services.html?car=${encodeURIComponent(value)}`;
+    window.location.href = `services.php?car=${encodeURIComponent(value)}`;
 };
 
 brandCard.forEach(brand => {

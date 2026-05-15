@@ -222,7 +222,7 @@ if ($car) {
       <ul>
         <li><a href="index.html">Home</a></li>
         <li><a href="about-contact.html">About Us</a></li>
-        <li><a href="services.html">Car Service</a></li>
+        <li><a href="services.php">Car Service</a></li>
         <li><a href="about-contact.html#contact">Contact</a></li>
       </ul>
     </div>
@@ -240,20 +240,20 @@ if ($car) {
       <div id="page-error" class="state state-error">
         <h3 id="error-title"><?= esc($errorTitle) ?></h3>
         <p id="error-message"><?= esc($errorMessage) ?></p>
-        <a href="services.html" class="hero-btn">Back to Cars</a>
+        <a href="services.php" class="hero-btn">Back to Cars</a>
       </div>
     <?php else: ?>
       <div id="page-error" class="state state-error" hidden>
         <h3 id="error-title">Error</h3>
         <p id="error-message"></p>
-        <a href="services.html" class="hero-btn">Back to Cars</a>
+        <a href="services.php" class="hero-btn">Back to Cars</a>
       </div>
     <?php endif; ?>
 
     <!-- Dynamic Content -->
     <div id="page-content" <?= $errorTitle ? 'hidden' : '' ?>>
       <div class="breadcrumb" id="breadcrumb">
-        <a href="index.html">Home</a> > <a href="services.html">Car Service</a> > <span><?= esc($title) ?></span>
+        <a href="index.html">Home</a> > <a href="services.php">Car Service</a> > <span><?= esc($title) ?></span>
       </div>
       <div class="status-badges" id="status-badges">
         <?php if ($isPopular): ?><div class="status-badge popular">Popular</div><?php endif; ?>
@@ -471,7 +471,7 @@ if ($car) {
             <h3>Booking Request Submitted!</h3>
             <p>Our team will contact you shortly to confirm your reservation and discuss payment details.</p>
             <div class="success-details" id="success-details"></div>
-            <button type="button" onclick="window.location.href='services.html'" class="hero-btn" style="margin-top: 20px;">
+            <button type="button" onclick="window.location.href='services.php'" class="hero-btn" style="margin-top: 20px;">
               Browse More Cars
             </button>
           </div>
@@ -545,7 +545,7 @@ if ($car) {
           <ul class="link-list">
             <li><a href="index.html">Home</a></li>
             <li><a href="about-contact.html">About Us</a></li>
-            <li><a href="services.html">Car Service</a></li>
+            <li><a href="services.php">Car Service</a></li>
             <li><a href="about-contact.html">Contact</a></li>
             <li><a href="car-details.php?id=1">Car Details</a></li>
           </ul>
