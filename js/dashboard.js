@@ -20,21 +20,26 @@ async function loadDashboard() {
     showLoading();
 
     try {
-        const response = await fetch("./data/dashboard.json");
-        if (!response.ok) throw new Error(`Failed to load JSON: ${response.status} ${response.statusText}`);
+        // CHANGED: Now fetching from your PHP script instead of a static JSON file
+        const response = await fetch("admin/get_dashboard_stats.php");
+
+        if (!response.ok) throw new Error(`Server Error: ${response.status}`);
+
         dashboardData = await response.json();
 
-        if (totalBookingsEl) totalBookingsEl.textContent = dashboardData.stats.totalBookings;
-        if (availableCarsEl) availableCarsEl.textContent = dashboardData.stats.availableCars;
-        if (dashTotalCarsEl) dashTotalCarsEl.textContent = dashboardData.stats.totalCars;
-        if (dashTotalBookingsEl) dashTotalBookingsEl.textContent = dashboardData.stats.totalBookings;
-        if (dashAvailableCarsEl) dashAvailableCarsEl.textContent = dashboardData.stats.availableCars;
-        if (dashCustomersEl) dashCustomersEl.textContent = dashboardData.stats.totalCustomers;
+        // Map the data from PHP to your HTML elements
+        // We use || 0 as a fallback in case the database returns null
+        if (totalBookingsEl) totalBookingsEl.textContent = dashboardData.stats.totalBookings || 0;
+        if (availableCarsEl) availableCarsEl.textContent = dashboardData.stats.availableCars || 0;
+        if (dashTotalCarsEl) dashTotalCarsEl.textContent = dashboardData.stats.totalCars || 0;
+        if (dashTotalBookingsEl) dashTotalBookingsEl.textContent = dashboardData.stats.totalBookings || 0;
+        if (dashAvailableCarsEl) dashAvailableCarsEl.textContent = dashboardData.stats.availableCars || 0;
+        if (dashCustomersEl) dashCustomersEl.textContent = dashboardData.stats.totalCustomers || 0;
 
         renderCharts();
     } catch (error) {
         showError(`Failed to load dashboard: ${error.message}`);
-        console.error("Error loading dashboard.json:", error);
+        console.error("Dashboard Fetch Error:", error);
     }
 }
 
@@ -60,7 +65,7 @@ function renderCharts() {
     const carStatusCtx = document.getElementById('carStatusChart').getContext('2d');
     const customerGrowthCtx = document.getElementById('customerGrowthChart').getContext('2d');
 
-    // Monthly Bookings Chart
+    // Monthly Bookings Chart (Static for now, as database trends require more complex SQL)
     new Chart(bookingCtx, {
         type: 'line',
         data: {
@@ -77,23 +82,23 @@ function renderCharts() {
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: { beginAtZero: true }
-            }
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
         }
     });
 
-    // Car Status Chart
+    // Car Status Chart (DYNAMIC: Uses real data from your PHP)
     new Chart(carStatusCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Available', 'Booked', 'Maintenance'],
+            labels: ['Available', 'Booked'],
             datasets: [{
-                data: [12, 7, 3],
-                backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                // Pulling directly from the dashboardData object we fetched
+                data: [
+                    dashboardData.stats.availableCars,
+                    dashboardData.stats.totalBookings
+                ],
+                backgroundColor: ['#28a745', '#ffc107'],
                 borderWidth: 2,
                 borderColor: '#fff'
             }]
@@ -109,7 +114,7 @@ function renderCharts() {
         }
     });
 
-    // Customer Growth Chart
+    // Customer Growth Chart (Static for now)
     new Chart(customerGrowthCtx, {
         type: 'bar',
         data: {
@@ -125,15 +130,10 @@ function renderCharts() {
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: { beginAtZero: true }
-            }
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
         }
     });
-
 }
 
 document.addEventListener("DOMContentLoaded", loadDashboard);
