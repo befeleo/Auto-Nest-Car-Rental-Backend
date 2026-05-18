@@ -58,29 +58,44 @@ if (empty($_SESSION['autonest_admin'])) {
           <header class="inventory-header">
             <h1>Dashboard</h1>
           </header>
-          <section class="content-section active-section">
+
+          <section class="dashboard-content">
             <div class="dashboard-cards">
               <div class="dash-card">
                 <h4>Total Cars</h4>
                 <p id="dash-total-cars">0</p>
               </div>
+
               <div class="dash-card">
                 <h4>Total Bookings</h4>
                 <p id="dash-total-bookings">0</p>
               </div>
+
               <div class="dash-card">
                 <h4>Available Cars</h4>
                 <p id="dash-available-cars">0</p>
               </div>
+
               <div class="dash-card">
                 <h4>Customers</h4>
                 <p id="dash-customers">0</p>
               </div>
             </div>
 
-            <section id="charts-container" class="dashboard-charts"></section>
+            <div class="dashboard-charts">
+              <div class="chart-box">
+                <h3>Bookings Overview</h3>
+                <canvas id="bookingChart"></canvas>
+              </div>
+
+              <div class="chart-box">
+                <h3>Vehicle Categories</h3>
+                <canvas id="vehicleChart"></canvas>
+              </div>
+            </div>
           </section>
         </div>
+
         <div id="inventory-section" class="content-section">
           <header class="inventory-header">
             <h1>Manage Inventory</h1>
