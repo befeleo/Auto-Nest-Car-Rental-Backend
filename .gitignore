@@ -1,2 +1,7 @@
 .env
+<<<<<<< HEAD
 /vendor/
+=======
+
+assets/images/cars
+>>>>>>> 8df0e13553e1ab93c4b1c8050354b68709c25ca9

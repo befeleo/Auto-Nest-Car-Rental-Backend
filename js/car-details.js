@@ -255,7 +255,7 @@
 
   function relatedCard(car) {
     const title = `${car.brand} ${car.name}`.trim() || 'Car';
-    const href = `car-details.html?id=${encodeURIComponent(String(car.id))}`;
+    const href = `car-details.php?id=${encodeURIComponent(String(car.id))}`;
     const img = car.images[0]?.src || FALLBACK_IMAGE;
     const a = document.createElement('a');
     a.className = 'related-car-card';
