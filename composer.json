@@ -1,0 +1,15 @@
+{
+    "name": "bereket/auto-nest",
+    "autoload": {
+        "psr-4": {
+            "Bereket\\AutoNest\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Bereket-dev",
+            "email": "bereketdesalegn097@gmail.com"
+        }
+    ],
+    "require": {}
+}

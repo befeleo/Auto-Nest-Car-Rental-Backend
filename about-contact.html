@@ -22,7 +22,7 @@
         <ul>
           <li><a href="index.html">Home</a></li>
           <li><a href="about-contact.html">About Us</a></li>
-          <li><a href="services.html">Car Service</a></li>
+          <li><a href="services.php">Car Service</a></li>
           <li><a href="about-contact.html">Contact</a></li>
         </ul>
       </div>
@@ -97,15 +97,15 @@
         <div class="contact-container">
           <div class="contact-form-container">
             <h3>Send Us a Message</h3>
-            <form id="contactForm" class="contact-form" novalidate>
+	            <form id="contactForm" class="contact-form" action="contact_submit.php" method="post">
               <div class="form-group">
                 <label for="name">Full Name *</label>
-                <input type="text" id="name" name="name" placeholder="Enter your full name" />
+	                <input type="text" id="name" name="name" placeholder="Enter your full name" required />
                 <span class="error-message" id="nameError"></span>
               </div>
               <div class="form-group">
                 <label for="email">Email Address *</label>
-                <input type="email" id="email" name="email" placeholder="Enter your email" />
+	                <input type="email" id="email" name="email" placeholder="Enter your email" required />
                 <span class="error-message" id="emailError"></span>
               </div>
               <div class="form-group">
@@ -115,7 +115,7 @@
               </div>
               <div class="form-group">
                 <label for="subject">Subject *</label>
-                <select id="subject" name="subject">
+	                <select id="subject" name="subject" required>
                   <option value="">Select a subject</option>
                   <option value="general">General Inquiry</option>
                   <option value="booking">Booking Assistance</option>
@@ -127,7 +127,7 @@
               </div>
               <div class="form-group">
                 <label for="message">Message *</label>
-                <textarea id="message" name="message" rows="5" placeholder="How can we help you?"></textarea>
+	                <textarea id="message" name="message" rows="5" placeholder="How can we help you?" required></textarea>
                 <span class="error-message" id="messageError"></span>
               </div>
               <div class="form-group checkbox-group">
@@ -240,7 +240,7 @@
           <ul class="link-list">
             <li><a href="index.html">Home</a></li>
             <li><a href="about-contact.html">About Us</a></li>
-            <li><a href="services.html">Car Service</a></li>
+            <li><a href="services.php">Car Service</a></li>
             <li><a href="about-contact.html">Contact</a></li>
           </ul>
         </div>
@@ -293,7 +293,7 @@
     </div>
   </footer>
 
-  <script src="js/form-validation.js"></script>
-</body>
+	  <!-- Contact form submits via PHP (no JS required) -->
+	</body>
 
 </html>

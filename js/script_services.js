@@ -18,7 +18,7 @@ async function loadCars() {
     showLoading();
 
     try {
-        const response = await fetch('admin/get_cars.php');
+        const response = await fetch('get_cars.php');
         if (!response.ok) throw new Error("Could not connect to get_cars.php");
 
         const rawData = await response.json();
