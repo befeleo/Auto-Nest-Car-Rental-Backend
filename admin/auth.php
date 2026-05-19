@@ -26,7 +26,7 @@ if ($action === 'login') {
         $nameColumn = getenv('ADMIN_NAME_COLUMN') ?: 'name';
         $roleColumn = getenv('ADMIN_ROLE_COLUMN') ?: 'role';
 
-        $sql = "SELECT {$nameColumn} AS name, {$emailColumn} AS email, {$passwordColumn} AS password, {$roleColumn} AS role
+        $sql = "SELECT id, {$nameColumn} AS name, {$emailColumn} AS email, {$passwordColumn} AS password, {$roleColumn} AS role
                 FROM {$table}
                 WHERE {$emailColumn} = ?
                 LIMIT 1";
@@ -49,6 +49,7 @@ if ($action === 'login') {
         }
 
         $_SESSION['autonest_admin'] = [
+            "id" => (int)$admin['id'],
             "name" => $admin['name'] ?: 'Admin User',
             "email" => $admin['email'],
             "role" => $admin['role'] ?: 'admin'
