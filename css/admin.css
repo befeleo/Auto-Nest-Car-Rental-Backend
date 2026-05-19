@@ -6,18 +6,28 @@
 
 body {
   font-family: "Segoe UI", sans-serif;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .admin-wrapper {
   display: grid;
   grid-template-columns: 260px 1fr;
   height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  min-height: 0;
 }
 
 .admin-sidebar {
   background-color: #1a1a2e;
   color: white;
   padding: 25px;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
 }
 
 .nav-link {
@@ -41,6 +51,9 @@ body {
 
 .main-body-wrapper {
   background-color: #f4f4f4;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 header {
@@ -51,6 +64,7 @@ header {
 
 main {
   padding: 40px;
+  min-height: min-content;
 }
 
 .logo {
@@ -105,7 +119,7 @@ main {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 70%;
   display: none;
   justify-content: center;
   align-items: center;
@@ -205,11 +219,13 @@ th {
 }
 
 .btn-edit .action-img {
-  filter: invert(31%) sepia(95%) saturate(2714%) hue-rotate(224deg) brightness(97%) contrast(96%);
+  filter: invert(31%) sepia(95%) saturate(2714%) hue-rotate(224deg)
+    brightness(97%) contrast(96%);
 }
 
 .btn-delete .action-img {
-  filter: invert(42%) sepia(88%) saturate(2238%) hue-rotate(331deg) brightness(101%) contrast(106%);
+  filter: invert(42%) sepia(88%) saturate(2238%) hue-rotate(331deg)
+    brightness(101%) contrast(106%);
 }
 
 .admin-feedback {
@@ -360,11 +376,13 @@ th {
 }
 
 .btn-confirm .action-img {
-  filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%);
+  filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg)
+    brightness(118%) contrast(119%);
 }
 
 .btn-cancel-status .action-img {
-  filter: invert(27%) sepia(91%) saturate(6452%) hue-rotate(346deg) brightness(104%) contrast(97%);
+  filter: invert(27%) sepia(91%) saturate(6452%) hue-rotate(346deg)
+    brightness(104%) contrast(97%);
 }
 
 .status {
@@ -454,9 +472,10 @@ th {
 }
 
 .setting-form-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 30px;
+  align-items: start;
 }
 
 .setting-form-grid input {
@@ -476,14 +495,177 @@ th {
   box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
 }
 
+.setting-form-grid .input-group label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-fields-column {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.form-fields-column .input-group {
+  grid-column: span 1;
+}
+
+.form-actions-column {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #fdfdfd;
+  border-left: 2px solid #f1f3f5;
+  padding-left: 24px;
+  padding-bottom: 40px;
+  position: relative;
+  height: 100%;
+}
+
+.form-actions-column h5 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #495057;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.btn-edit-mode,
+.btn-switch-account,
+.btn-logout-account,
+.update-setting {
+  width: 100%;
+  padding: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.btn-edit-mode {
+  background: #495057;
+  color: #fff;
+  border: none;
+  margin-top: 5px;
+}
+
+.btn-edit-mode:hover {
+  background: #343a40;
+}
+
+.btn-edit-mode.active-editing {
+  background: #868e96;
+}
+
+.btn-switch-account {
+  width: auto;
+  padding: 6px 14px;
+  margin: 0;
+  background: transparent;
+  border: 1px solid #dee2e6;
+  color: #495057;
+}
+
+.btn-switch-account:hover {
+  background: #f8f9fa;
+  border-color: #ced4da;
+}
+
+.btn-logout-account {
+  background: transparent;
+  color: #e94560;
+  border: 2px solid #e94560;
+  transition: 0.3s;
+}
+
+.profile-message.success {
+  color: #087f5b;
+}
+
+.profile-message.error {
+  color: #b91c1c;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.setting-form-grid.is-editing input:not([type="password"]):not([readonly]),
+.setting-form-grid.is-editing input[type="password"]:not([readonly]) {
+  color: #333;
+  background-color: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: auto;
+}
+
+.update-setting:hover {
+  background-color: #d2334e;
+}
+
+.update-setting:active {
+  transform: scale(0.99);
+}
+
+.profile-message {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  position: absolute;
+  bottom: 8px;
+  left: 24px;
+  right: 0;
+  height: 20px;
+  line-height: 20px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.setting-form-grid.is-editing input:not([id="admin-email"]) {
+  background-color: #ffffff;
+  border-color: #e94560;
+  cursor: text;
+}
+
+.setting-form-grid.is-editing input[readonly] {
+  background-color: #f1f3f5;
+  border-color: #dee2e6;
+}
+
 .input-wrapper {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #f0f0f0;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #eee;
+  width: 100%;
+  background: #fafafa;
+}
+
+.input-wrapper input {
+  padding-right: 45px;
+}
+
+.input-wrapper .password-toggle {
+  position: absolute;
+  right: 14px;
+  border: none;
+  background: transparent;
+  color: #adb5bd;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  z-index: 2;
+  transition: color 0.2s ease;
+}
+
+.input-wrapper .password-toggle:hover {
+  color: #e94560;
 }
 
 .btn-text {
@@ -599,7 +781,6 @@ select#currency-select {
   margin-bottom: 20px;
 }
 
-
 /* DASHBOARD STYLES */
 .dashboard-cards {
   display: grid;
@@ -615,7 +796,9 @@ select#currency-select {
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   border-left: 6px solid #e94560;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .dash-card:hover {
@@ -668,8 +851,6 @@ select#currency-select {
   max-width: 500px;
   height: 250px !important;
 }
-
-
 
 @media (max-width: 768px) {
   .dashboard-cards {

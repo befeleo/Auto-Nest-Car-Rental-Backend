@@ -40,7 +40,7 @@ if (empty($_SESSION['autonest_admin'])) {
         </a>
 
         <a href="#" class="nav-link" data-section="setting">
-          <img src="assets/icons/gear-solid.svg" alt="setting" class="nav-icon" />Settings
+          <img src="assets/icons/gear-solid.svg" alt="setting" class="nav-icon" />Setting
         </a>
 
         <div class="sidebar-footer">
@@ -172,68 +172,105 @@ if (empty($_SESSION['autonest_admin'])) {
           <header class="inventory-header">
             <h1>Setting</h1>
           </header>
+
           <div class="settings-grid">
-            <div class="settings-sub-card">
-              <h4>Admin Profile</h4>
+
+            <div id="profile-view-container" class="settings-sub-card">
+              <div class="card-header-flex" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h4 style="margin: 0;">Admin Profile</h4>
+                <button type="button" class="btn-switch-account" id="go-to-create-btn">
+                  + Add Admin
+                </button>
+              </div>
+
               <div class="profile-upload-container">
                 <div class="profile-preview">
                   <img src="assets/icons/user-solid.svg" alt="Profile" id="profile-img-preview" />
                 </div>
-                <label for="admin-photo-upload" id="change-admin-photo">
-                  Change Photo
-                </label>
+                <label for="admin-photo-upload" id="change-admin-photo">Change Photo</label>
                 <input type="file" id="admin-photo-upload" accept="image/*" />
               </div>
-              <form class="setting-form-grid">
-                <input type="text" id="admin-name" placeholder="Full Name" />
-                <input type="email" id="admin-email" placeholder="Email" />
 
-                <div class="password-display-group">
-                  <div class="input-wrapper">
-                    <input type="password" id="admin-pass-display" value="********" readonly />
-                    <button type="button" class="btn-text">Change</button>
+              <form id="admin-profile-form" class="setting-form-grid">
+                <div class="form-fields-column">
+                  <div class="input-group">
+                    <label for="admin-name">Profile Name</label>
+                    <input type="text" id="admin-name" value="" readonly />
                   </div>
+                  <div class="input-group">
+                    <label for="admin-email">Email Address</label>
+                    <input type="email" id="admin-email" value="" readonly />
+                  </div>
+                  <div class="input-group">
+                    <label for="admin-password">Update Password</label>
+                    <div class="input-wrapper">
+                      <input type="password" id="admin-password" placeholder="••••••••" readonly />
+                      <button type="button" id="admin-password-toggle" class="password-toggle" aria-label="Show password"></button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-actions-column">
+                  <h5>Account Actions</h5>
+                  <button type="button" class="btn-edit-mode" id="edit-profile-btn">Change Settings</button>
+                  <button type="button" class="btn-logout-account" id="logout-account-btn">Log Out</button>
+                  <button type="button" class="update-setting hidden" id="save-profile-btn">Save Profile</button>
+                  <div id="profile-message" class="profile-message"></div>
                 </div>
               </form>
             </div>
 
-            <div class="settings-sub-card">
-              <h4>System Preferences</h4>
-              <div class="checkbox-group vertical">
-                <label>
-                  <input type="checkbox" />
-                  Receive Booking Notifications
-                </label>
-                <label>
-                  <input type="checkbox" />
-                  Enable Maintenance Mode
-                </label>
-                <label>
-                  <input type="checkbox" />
-                  Show Inventory Alerts
-                </label>
+            <div id="create-view-container" class="settings-sub-card hidden">
+              <div class="card-header-flex" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h4 style="margin: 0;">Create New Admin Account</h4>
+                <button type="button" class="btn-switch-account" id="cancel-create-btn">
+                  ← Back to Profile
+                </button>
               </div>
-              <h4 class="currency-format-heading">Currency Format</h4>
-              <select id="currency-select" title="currency-select">
-                <option value="ETB">Ethiopian Birr (Br)</option>
-                <option value="USD">USD ($)</option>
-              </select>
+
+              <form id="create-admin-form" class="setting-form-grid">
+                <div class="form-fields-column">
+                  <div class="input-group">
+                    <label for="new-admin-name">Full Name</label>
+                    <input type="text" id="new-admin-name" placeholder="Enter full name" required />
+                  </div>
+
+                  <div class="input-group">
+                    <label for="new-admin-email">Email Address</label>
+                    <input type="email" id="new-admin-email" placeholder="Enter registration email" required />
+                  </div>
+
+                  <div class="input-group">
+                    <label for="new-admin-password">Account Password</label>
+                    <div class="input-wrapper">
+                      <input type="password" id="new-admin-password" placeholder="Create secure password" required />
+                      <button type="button" id="new-password-toggle" class="password-toggle" aria-label="Show password">👁</button>
+                    </div>
+                  </div>
+
+                  <div class="input-group">
+                    <label for="new-admin-confirm-password">Confirm Password</label>
+                    <div class="input-wrapper">
+                      <input type="password" id="new-admin-confirm-password" placeholder="Retype password" required />
+                      <button type="button" id="confirm-password-toggle" class="password-toggle" aria-label="Show confirm password">👁</button>
+                    </div>
+                  </div>
+                  <p class="password-note">Must be at least 6 characters long and match perfectly</p>
+                </div>
+
+                <div class="form-actions-column">
+                  <h5>Management</h5>
+                  <p style="font-size: 0.85rem; color: #6c757d; margin: 0; line-height: 1.4;">
+                    Provide credentials to authorize access to the AutoNest administrator panel ecosystem.
+                  </p>
+                  <button type="submit" class="update-setting" id="create-admin-btn" style="margin-top: auto;">
+                    Create Admin
+                  </button>
+                  <div id="register-message" class="profile-message"></div>
+                </div>
+              </form>
             </div>
 
-            <div class="settings-sub-card">
-              <h4>Account Actions</h4>
-              <div class="account-buttons">
-                <button type="button" class="btn-switch-account">
-                  Switch Account
-                </button>
-                <button type="button" class="btn-logout-account">
-                  Log Out
-                </button>
-              </div>
-            </div>
-            <button type="button" class="update-setting">
-              Update Setting
-            </button>
           </div>
         </div>
 

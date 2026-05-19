@@ -102,13 +102,7 @@ async function loadAdminData() {
         user = null;
     }
 
-    if (!user) return;
 
-    const nameEl = document.getElementById("admin-name");
-    const emailEl = document.getElementById("admin-email");
-
-    if (nameEl) nameEl.value = user.name || "";
-    if (emailEl) emailEl.value = user.email || "";
 }
 
 function setupLogout() {
