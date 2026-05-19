@@ -1,13 +1,11 @@
 <?php
 require_once __DIR__ . '/database/db_connect.php';
 
-function esc($value)
-{
+function esc($value) {
   return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
-function toBool($value)
-{
+function toBool($value) {
   if ($value === null) return null;
   if (is_bool($value)) return $value;
   $s = strtolower(trim((string)$value));
@@ -15,22 +13,19 @@ function toBool($value)
   return in_array($s, ['1', 'true', 'yes', 'y'], true);
 }
 
-function humanizeKey($key)
-{
+function humanizeKey($key) {
   $k = preg_replace('/[_-]+/', ' ', (string)$key);
   $k = preg_replace('/(?<!^)([A-Z])/', ' $1', $k);
   $k = preg_replace('/\s+/', ' ', $k);
   return ucwords(trim($k));
 }
 
-function formatNumber($n)
-{
+function formatNumber($n) {
   $num = is_numeric($n) ? (float)$n : 0.0;
   return number_format($num, 0, '.', ',');
 }
 
-function parseFeatures($value)
-{
+function parseFeatures($value) {
   if (is_array($value)) return array_values(array_filter(array_map('trim', array_map('strval', $value))));
   if (!is_string($value)) return [];
   $parts = preg_split('/,|\n|;|\|/', $value);
@@ -42,8 +37,7 @@ function parseFeatures($value)
   return $out;
 }
 
-function starsHtml($rating)
-{
+function starsHtml($rating) {
   $r = is_numeric($rating) ? (float)$rating : 0.0;
   $r = max(0.0, min(5.0, $r));
   $full = (int)floor($r);
@@ -54,8 +48,7 @@ function starsHtml($rating)
     . str_repeat('<i class="far fa-star"></i>', $empty);
 }
 
-function collectImages($car, $fallback)
-{
+function collectImages($car, $fallback) {
   $images = [];
   foreach (($car ?? []) as $k => $v) {
     if (!preg_match('/image/i', (string)$k)) continue;
@@ -64,10 +57,7 @@ function collectImages($car, $fallback)
     if ($src === '') continue;
     $exists = false;
     foreach ($images as $img) {
-      if ($img['src'] === $src) {
-        $exists = true;
-        break;
-      }
+      if ($img['src'] === $src) { $exists = true; break; }
     }
     if ($exists) continue;
     $images[] = ['src' => $src, 'label' => humanizeKey($k)];
@@ -162,34 +152,9 @@ if ($car) {
 $extraFields = [];
 if ($car) {
   $excluded = array_fill_keys([
-    'id',
-    'brand',
-    'name',
-    'price',
-    'bodyType',
-    'fuelType',
-    'transmission',
-    'isUsed',
-    'isPopular',
-    'isLuxury',
-    'features',
-    'image',
-    'image_path',
-    'imagePath',
-    'detailImage',
-    'detail_image',
-    'description',
-    'rating',
-    'reviews',
-    'available',
-    'seats',
-    'engine',
-    'color',
-    'mileage',
-    'year',
-    'fuelEfficiency',
-    'power',
-    'torque',
+    'id','brand','name','price','bodyType','fuelType','transmission','isUsed','isPopular','isLuxury','features',
+    'image','image_path','imagePath','detailImage','detail_image','description','rating','reviews','available',
+    'seats','engine','color','mileage','year','fuelEfficiency','power','torque',
   ], true);
   foreach ($car as $k => $v) {
     if (isset($excluded[$k])) continue;
@@ -214,7 +179,7 @@ if ($car) {
       if (toBool($cand['isLuxury'] ?? null) === true) $score += 1;
       $relatedCars[] = ['score' => $score, 'car' => $cand];
     }
-    usort($relatedCars, function ($a, $b) {
+    usort($relatedCars, function($a, $b) {
       if ($a['score'] === $b['score']) {
         return (int)($b['car']['id'] ?? 0) <=> (int)($a['car']['id'] ?? 0);
       }
@@ -249,13 +214,11 @@ if ($car) {
     <a href="index.html" class="logo">
       <img src="assets/images/logo.png" alt="Auto Nest Logo" />
     </a>
-
-
     <div class="nav-bar-links">
       <ul>
         <li><a href="index.html">Home</a></li>
         <li><a href="about-contact.html">About Us</a></li>
-        <li><a href="services.html">Car Service</a></li>
+        <li><a href="services.php">Car Service</a></li>
         <li><a href="about-contact.html#contact">Contact</a></li>
       </ul>
     </div>
@@ -273,20 +236,20 @@ if ($car) {
       <div id="page-error" class="state state-error">
         <h3 id="error-title"><?= esc($errorTitle) ?></h3>
         <p id="error-message"><?= esc($errorMessage) ?></p>
-        <a href="services.html" class="hero-btn">Back to Cars</a>
+        <a href="services.php" class="hero-btn">Back to Cars</a>
       </div>
     <?php else: ?>
       <div id="page-error" class="state state-error" hidden>
         <h3 id="error-title">Error</h3>
         <p id="error-message"></p>
-        <a href="services.html" class="hero-btn">Back to Cars</a>
+        <a href="services.php" class="hero-btn">Back to Cars</a>
       </div>
     <?php endif; ?>
 
     <!-- Dynamic Content -->
     <div id="page-content" <?= $errorTitle ? 'hidden' : '' ?>>
       <div class="breadcrumb" id="breadcrumb">
-        <a href="index.html">Home</a> > <a href="services.html">Car Service</a> > <span><?= esc($title) ?></span>
+        <a href="index.html">Home</a> > <a href="services.php">Car Service</a> > <span><?= esc($title) ?></span>
       </div>
       <div class="status-badges" id="status-badges">
         <?php if ($isPopular): ?><div class="status-badge popular">Popular</div><?php endif; ?>
@@ -504,7 +467,7 @@ if ($car) {
             <h3>Booking Request Submitted!</h3>
             <p>Our team will contact you shortly to confirm your reservation and discuss payment details.</p>
             <div class="success-details" id="success-details"></div>
-            <button type="button" onclick="window.location.href='services.html'" class="hero-btn" style="margin-top: 20px;">
+            <button type="button" onclick="window.location.href='services.php'" class="hero-btn" style="margin-top: 20px;">
               Browse More Cars
             </button>
           </div>
@@ -516,10 +479,10 @@ if ($car) {
         <div class="related-cars-grid" id="related-cars-grid">
           <?php foreach ($relatedCars as $wrap): $rc = $wrap['car']; ?>
             <?php
-            $rcTitle = trim(($rc['brand'] ?? '') . ' ' . ($rc['name'] ?? '')) ?: 'Car';
-            $rcImages = collectImages($rc, $fallbackImage);
-            $rcImg = $rcImages[0]['src'] ?? $fallbackImage;
-            $rcSpecs = array_filter([$rc['bodyType'] ?? null, $rc['fuelType'] ?? null, $rc['transmission'] ?? null]);
+              $rcTitle = trim(($rc['brand'] ?? '') . ' ' . ($rc['name'] ?? '')) ?: 'Car';
+              $rcImages = collectImages($rc, $fallbackImage);
+              $rcImg = $rcImages[0]['src'] ?? $fallbackImage;
+              $rcSpecs = array_filter([$rc['bodyType'] ?? null, $rc['fuelType'] ?? null, $rc['transmission'] ?? null]);
             ?>
             <a class="related-car-card" href="car-details.php?id=<?= esc(urlencode((string)($rc['id'] ?? ''))) ?>">
               <img alt="<?= esc($rcTitle) ?>" src="<?= esc($rcImg) ?>" onerror="this.src='<?= esc($fallbackImage) ?>'">
@@ -578,7 +541,7 @@ if ($car) {
           <ul class="link-list">
             <li><a href="index.html">Home</a></li>
             <li><a href="about-contact.html">About Us</a></li>
-            <li><a href="services.html">Car Service</a></li>
+            <li><a href="services.php">Car Service</a></li>
             <li><a href="about-contact.html">Contact</a></li>
             <li><a href="car-details.php?id=1">Car Details</a></li>
           </ul>
