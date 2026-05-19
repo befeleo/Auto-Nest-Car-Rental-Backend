@@ -24,16 +24,20 @@ tabLinks.forEach((link) => {
     });
 });
 
-const redirectToFilter = (value) => {
-    if (!value) return;
-    window.location.href = `services.php?car=${encodeURIComponent(value)}`;
+const redirectToBrand = (brandName) => {
+    if (!brandName) return;
+    window.location.href = `brand-car.php?brand=${encodeURIComponent(brandName)}`;
+};
+
+const redirectToPreference = (preferenceValue) => {
+    if (!preferenceValue) return;
+    window.location.href = `preference-car.php?preference=${encodeURIComponent(preferenceValue)}`;
 };
 
 brandCard.forEach(brand => {
     brand.addEventListener('click', () => {
-        const brandName = brand.getAttribute('data-brand')
-
-        redirectToFilter(brandName);
+        const brandName = brand.getAttribute('data-brand');
+        redirectToBrand(brandName);
     });
 });
 
@@ -41,8 +45,7 @@ filterOptions.forEach(filter => {
     filter.addEventListener('click', (e) => {
         e.preventDefault();
         const filterValue = filter.getAttribute('data-filter');
-
-        redirectToFilter(filterValue);
+        redirectToPreference(filterValue);
     });
 });
 
