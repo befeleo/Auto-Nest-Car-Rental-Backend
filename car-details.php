@@ -214,10 +214,6 @@ if ($car) {
     <a href="index.html" class="logo">
       <img src="assets/images/logo.png" alt="Auto Nest Logo" />
     </a>
-    <div class="nav-bar-search">
-      <img src="assets/icons/search.svg" alt="search" title="search" width="24" height="24" />
-      <input id="search-input" class="search" type="text" placeholder="Search" />
-    </div>
     <div class="nav-bar-links">
       <ul>
         <li><a href="index.html">Home</a></li>
