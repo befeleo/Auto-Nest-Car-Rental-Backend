@@ -190,6 +190,18 @@ if ($car) {
     $relatedCars = [];
   }
 }
+
+$bookingFlash = null;
+if (isset($_GET['booking'])) {
+  $b = strtolower(trim((string)$_GET['booking']));
+  if (in_array($b, ['success', 'error'], true)) {
+    $bookingFlash = [
+      'type' => $b,
+      'booking_id' => isset($_GET['booking_id']) ? trim((string)$_GET['booking_id']) : '',
+      'error' => isset($_GET['error']) ? trim((string)$_GET['error']) : '',
+    ];
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -374,10 +386,17 @@ if ($car) {
 
         <div class="booking-form-container">
           <h2><i class="fas fa-calendar-check"></i> Book This Vehicle</h2>
-          <form id="booking-form">
-            <input type="hidden" id="car-id" value="<?= esc($car['id'] ?? '') ?>" />
-            <input type="hidden" id="car-name" value="<?= esc($title) ?>" />
-            <input type="hidden" id="daily-rate-input" value="<?= esc((string)$price) ?>" />
+
+          <?php if ($bookingFlash && $bookingFlash['type'] === 'error'): ?>
+            <div class="error-message" style="display:block;margin-bottom:14px;">
+              <?= esc($bookingFlash['error'] !== '' ? $bookingFlash['error'] : 'Booking failed. Please try again.') ?>
+            </div>
+          <?php endif; ?>
+
+          <form id="booking-form" method="post" action="booking_submit.php" novalidate>
+            <input type="hidden" id="car-id" name="car_id" value="<?= esc($car['id'] ?? '') ?>" />
+            <input type="hidden" id="car-name" name="car_name" value="<?= esc($title) ?>" />
+            <input type="hidden" id="daily-rate-input" name="daily_rate" value="<?= esc((string)$price) ?>" />
 
             <div class="form-group">
               <label for="full-name"><i class="fas fa-user"></i> Full Name *</label>
@@ -466,7 +485,7 @@ if ($car) {
             </button>
           </form>
 
-          <div class="success-message" id="success-message">
+          <div class="success-message" id="success-message" style="<?= ($bookingFlash && $bookingFlash['type'] === 'success') ? 'display:block;' : '' ?>">
             <i class="fas fa-check-circle"></i>
             <h3>Booking Request Submitted!</h3>
             <p>Our team will contact you shortly to confirm your reservation and discuss payment details.</p>
@@ -475,6 +494,29 @@ if ($car) {
               Browse More Cars
             </button>
           </div>
+
+          <?php if ($bookingFlash && $bookingFlash['type'] === 'success'): ?>
+            <script>
+              (function () {
+                const form = document.getElementById('booking-form');
+                const success = document.getElementById('success-message');
+                const details = document.getElementById('success-details');
+                if (form) form.style.display = 'none';
+                if (success) success.style.display = 'block';
+                if (details) {
+                  const id = <?= json_encode($bookingFlash['booking_id']) ?>;
+                  if (id) {
+                    details.innerHTML = '';
+                    const row = document.createElement('div');
+                    row.className = 'detail-row';
+                    row.innerHTML = '<span>Booking ID:</span><span></span>';
+                    row.children[1].textContent = '#' + id;
+                    details.appendChild(row);
+                  }
+                }
+              })();
+            </script>
+          <?php endif; ?>
         </div>
       </section>
 

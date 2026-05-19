@@ -127,16 +127,21 @@ if (empty($_SESSION['autonest_admin'])) {
             <h1>Manage Bookings</h1>
           </header>
 
+          <div id="booking-admin-message" class="admin-feedback" hidden></div>
+
           <section class="admin-table">
             <h3>Customer Requests</h3>
             <div class="table-scroll">
               <table id="booking-table">
                 <thead>
                   <tr>
+                    <th>ID</th>
                     <th>CUSTOMER</th>
                     <th>VEHICLE</th>
+                    <th>PICKUP</th>
+                    <th>DROP-OFF</th>
                     <th>PHONE</th>
-                    <th>DATE</th>
+                    <th>TOTAL</th>
                     <th>STATUS</th>
                     <th>ACTIONS</th>
                   </tr>

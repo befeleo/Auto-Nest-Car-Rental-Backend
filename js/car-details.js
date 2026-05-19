@@ -165,26 +165,76 @@
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       if (!validate()) return;
-      const booking = saveBooking({
-        fullName: $id('full-name').value,
-        email: $id('email').value,
-        phone: $id('phone').value,
-        pickupDate: pickup.value,
-        dropoffDate: dropoff.value,
-        pickupLocation: $id('pickup-location').value,
-        driverType: driver.value,
-        specialRequests: $id('special-requests').value,
-        totalDays: totalDays.textContent,
-        totalPrice: total.textContent,
-        discount: discount.textContent,
-        driverFee: driverFee.textContent,
-      });
-      form.style.display = 'none';
-      success.style.display = 'block';
-      details.innerHTML = '';
-      details.append(successRow('Booking ID', `#${booking.id}`), successRow('Vehicle', booking.carName), successRow('Pick-up Date', prettyDate(booking.pickupDate)), successRow('Duration', `${booking.totalDays} days`), successRow('Total Price', booking.totalPrice));
-      success.scrollIntoView({ behavior: 'smooth' });
+      submitBooking().catch(() => {});
     });
+
+    async function submitBooking() {
+      const prevBtnState = submitBtnState();
+      setSubmitting(true);
+      setFormError('');
+      try {
+        const res = await fetch(form.action || 'booking_submit.php', {
+          method: 'POST',
+          headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' },
+          body: new FormData(form),
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data || data.ok !== true) {
+          const msg = (data && data.error) ? String(data.error) : 'Failed to submit booking. Please try again.';
+          setFormError(msg);
+          return;
+        }
+
+        const booking = data.booking || {};
+        form.style.display = 'none';
+        success.style.display = 'block';
+        details.innerHTML = '';
+        details.append(
+          successRow('Booking ID', booking.id ? `#${booking.id}` : '-'),
+          successRow('Vehicle', booking.carName || `${window.currentCar.brand} ${window.currentCar.name}`.trim()),
+          successRow('Pick-up Date', booking.pickupDate ? prettyDate(booking.pickupDate) : prettyDate(pickup.value)),
+          successRow('Duration', booking.totalDays ? `${booking.totalDays} days` : `${totalDays.textContent} days`),
+          successRow('Total Price', booking.totalPrice != null ? `${formatNumber(booking.totalPrice)} birr` : total.textContent),
+        );
+        success.scrollIntoView({ behavior: 'smooth' });
+      } finally {
+        setSubmitting(false);
+        restoreBtnState(prevBtnState);
+      }
+    }
+
+    function submitBtnState() {
+      const btn = form.querySelector('button[type="submit"]');
+      if (!btn) return null;
+      return { btn, disabled: btn.disabled, html: btn.innerHTML };
+    }
+
+    function restoreBtnState(state) {
+      if (!state || !state.btn) return;
+      state.btn.disabled = state.disabled;
+      state.btn.innerHTML = state.html;
+    }
+
+    function setSubmitting(isSubmitting) {
+      const btn = form.querySelector('button[type="submit"]');
+      if (!btn) return;
+      btn.disabled = Boolean(isSubmitting);
+      if (isSubmitting) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    }
+
+    function setFormError(message) {
+      let box = form.querySelector('.booking-form-error');
+      if (!box) {
+        box = document.createElement('div');
+        box.className = 'error-message booking-form-error';
+        box.style.display = 'none';
+        form.prepend(box);
+      }
+      const msg = String(message || '').trim();
+      if (!msg) { box.style.display = 'none'; box.textContent = ''; return; }
+      box.textContent = msg;
+      box.style.display = 'block';
+    }
 
     setMinDates();
     recalc();
@@ -421,4 +471,3 @@
   }
 
 })();
-
