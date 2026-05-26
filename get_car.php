@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-include 'database/db_connect.php';
+require 'database/db_connect.php';
 
 $idRaw = $_GET['id'] ?? null;
 if ($idRaw === null || $idRaw === '') {

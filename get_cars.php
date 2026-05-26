@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-include 'database/db_connect.php';
+require 'database/db_connect.php';
 
 try {
     $stmt = $pdo->query("SELECT * FROM cars ORDER BY id DESC");
