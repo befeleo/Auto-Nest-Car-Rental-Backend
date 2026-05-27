@@ -125,4 +125,3 @@ try {
 }
 
 respondHtml(200, 'Message Sent', 'Thanks! Your message has been sent to our team. We will get back to you soon.');
-
