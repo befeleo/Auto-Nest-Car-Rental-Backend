@@ -18,14 +18,28 @@ async function loadCars() {
     showLoading();
 
     try {
-        const response = await fetch('get_cars.php');
-        if (!response.ok) throw new Error("Could not connect to get_cars.php");
+        const urlParams = new URLSearchParams(window.location.search);
+        const brandParam = urlParams.get('brand');
+        const preferenceParam = urlParams.get('preference');
+        const searchQuery = urlParams.get('search');
+
+        let requestUrl = 'get_cars.php';
+        if (brandParam && brandParam.trim() !== '') {
+            requestUrl = `get_cars.php?brand=${encodeURIComponent(brandParam.trim())}`;
+        } else if (preferenceParam && preferenceParam.trim() !== '') {
+            requestUrl = `get_cars.php?preference=${encodeURIComponent(preferenceParam.trim())}`;
+        }
+
+        const response = await fetch(requestUrl);
+        if (!response.ok) {
+            const text = await response.text();
+            throw new Error(`Request failed: ${requestUrl} (${response.status} ${response.statusText}) - ${text}`);
+        }
 
         const rawData = await response.json();
 
         cars = rawData.map(dbRow => {
-            // Check if image path is empty or explicitly NULL
-            let carImage = dbRow.image_path;
+            let carImage = dbRow.image_path || dbRow.image;
             if (!carImage || carImage.trim() === "" || carImage.toLowerCase() === "null") {
                 carImage = 'assets/images/placeholder-car.png';
             }
@@ -39,9 +53,6 @@ async function loadCars() {
                 features: dbRow.features ? dbRow.features.split(',').map(f => f.trim()) : []
             };
         });
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const searchQuery = urlParams.get('search');
 
         if (searchQuery && searchQuery.trim() !== "") {
             const searchInput = document.getElementById("search-input");
