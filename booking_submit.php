@@ -3,32 +3,37 @@ require_once __DIR__ . '/database/db_connect.php';
 
 header('X-Content-Type-Options: nosniff');
 
-function jsonResponse(int $status, array $payload): void {
+function jsonResponse(int $status, array $payload): void
+{
   http_response_code($status);
   header('Content-Type: application/json; charset=utf-8');
   echo json_encode($payload);
   exit;
 }
 
-function isAjaxRequest(): bool {
+function isAjaxRequest(): bool
+{
   $requestedWith = $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '';
   if (strtolower($requestedWith) === 'xmlhttprequest') return true;
   $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
   return stripos($accept, 'application/json') !== false;
 }
 
-function post(string $key): string {
+function post(string $key): string
+{
   $v = $_POST[$key] ?? '';
   return is_string($v) ? trim($v) : '';
 }
 
-function requireField(string $key, string $label): string {
+function requireField(string $key, string $label): string
+{
   $v = post($key);
   if ($v === '') jsonFail("$label is required.", 422);
   return $v;
 }
 
-function jsonFail(string $message, int $status = 400): void {
+function jsonFail(string $message, int $status = 400): void
+{
   if (isAjaxRequest()) jsonResponse($status, ['ok' => false, 'error' => $message]);
   $carId = post('car_id');
   if ($carId !== '' && ctype_digit($carId)) {
@@ -39,12 +44,14 @@ function jsonFail(string $message, int $status = 400): void {
   exit;
 }
 
-function normalizePhone(string $phone): string {
+function normalizePhone(string $phone): string
+{
   $p = preg_replace('/\s+/', '', $phone);
   return $p ?? $phone;
 }
 
-function parseDate(string $yyyyMmDd): ?DateTimeImmutable {
+function parseDate(string $yyyyMmDd): ?DateTimeImmutable
+{
   $d = DateTimeImmutable::createFromFormat('Y-m-d', $yyyyMmDd);
   if (!$d) return null;
   $errors = DateTimeImmutable::getLastErrors();
