@@ -26,8 +26,34 @@ CREATE TABLE IF NOT EXISTS cars (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ";
 
+$bookingsTableSQL = "
+CREATE TABLE IF NOT EXISTS bookings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    car_id INT NOT NULL,
+    car_name VARCHAR(255) NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(50) NOT NULL,
+    pickup_date DATE NOT NULL,
+    dropoff_date DATE NOT NULL,
+    pickup_location VARCHAR(120) NOT NULL,
+    driver_type VARCHAR(40) NOT NULL DEFAULT 'self_drive',
+    special_requests TEXT NULL,
+    total_days INT NOT NULL,
+    price_per_day DECIMAL(10,2) NOT NULL,
+    discount_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+    driver_fee DECIMAL(10,2) NOT NULL DEFAULT 0,
+    total_price DECIMAL(10,2) NOT NULL,
+    status VARCHAR(40) NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX (car_id),
+    INDEX (status),
+    CONSTRAINT fk_bookings_car_id FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+";
+
 function createTables($pdo) {
-    global $adminTableSQL, $carsTableSQL;
+    global $adminTableSQL, $carsTableSQL, $bookingsTableSQL;
 
     try {
         // Create admin_users table
@@ -37,6 +63,10 @@ function createTables($pdo) {
         // Create cars table
         $pdo->exec($carsTableSQL);
         echo "Cars inventory table created successfully.\n";
+
+        // Create bookings table
+        $pdo->exec($bookingsTableSQL);
+        echo "Bookings table created successfully.\n";
 
     } catch (PDOException $e) {
         echo "Error creating tables: " . $e->getMessage() . "\n";

@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+require __DIR__ . '/vendor/autoload.php';
+
 function loadEnv(string $path): void
 {
     if (!file_exists($path)) {
@@ -109,38 +111,17 @@ $html .= htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 $html .= '</pre>';
 $html .= '</div>';
 
-$payload = [
-    'from' => $fromEmail,
-    'to' => [$contactTo],
-    'subject' => 'Contact Form: ' . $subjectLabel,
-    'html' => $html,
-    'reply_to' => $email,
-];
-
-$ch = curl_init('https://api.resend.com/emails');
-curl_setopt_array($ch, [
-    CURLOPT_POST => true,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_HTTPHEADER => [
-        'Authorization: Bearer ' . $apiKey,
-        'Content-Type: application/json',
-    ],
-    CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
-    CURLOPT_TIMEOUT => 15,
-]);
-
-$body = curl_exec($ch);
-$curlErr = curl_error($ch);
-$status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-if ($body === false) {
-    respondHtml(502, 'Email Error', 'Failed to contact email service: ' . $curlErr);
-}
-
-if ($status < 200 || $status >= 300) {
-    respondHtml(502, 'Email Error', 'Email service rejected the request (HTTP ' . $status . ').');
+try {
+    $resend = Resend::client($apiKey);
+    $resend->emails->send([
+        'from' => $fromEmail,
+        'to' => [$contactTo],
+        'subject' => 'Contact Form: ' . $subjectLabel,
+        'html' => $html,
+        'reply_to' => $email,
+    ]);
+} catch (Throwable $exception) {
+    respondHtml(502, 'Email Error', 'Failed to send email: ' . $exception->getMessage());
 }
 
 respondHtml(200, 'Message Sent', 'Thanks! Your message has been sent to our team. We will get back to you soon.');
-
