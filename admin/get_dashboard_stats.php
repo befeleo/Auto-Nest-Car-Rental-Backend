@@ -28,10 +28,13 @@ try {
         $stats['availableCars'] = $stats['totalCars']; // Fallback
     }
 
-    // 4. Total Customers - Check if table exists
     $checkUsers = $pdo->query("SHOW TABLES LIKE 'users'")->rowCount();
     if ($checkUsers > 0) {
         $stats['totalCustomers'] = (int)$pdo->query("SELECT COUNT(*) FROM users WHERE role='customer'")->fetchColumn();
+    } else {
+        // Count unique customer emails from the bookings table instead!
+        $customerCount = $pdo->query("SELECT COUNT(DISTINCT email) FROM bookings");
+        $stats['totalCustomers'] = (int)$customerCount->fetchColumn();
     }
 
     echo json_encode(["stats" => $stats]);
