@@ -1,6 +1,8 @@
 <?php
 // 1. Capture the search term from the URL (GET method)
 $searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
+$brandFilter = isset($_GET['brand']) ? $_GET['brand'] : '';
+$preferenceFilter = isset($_GET['preference']) ? $_GET['preference'] : '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,6 +32,12 @@ $searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
         type="text"
         placeholder="Search cars..."
         value="<?php echo htmlspecialchars($searchTerm); ?>" />
+      <?php if ($brandFilter !== ''): ?>
+        <input type="hidden" name="brand" value="<?php echo htmlspecialchars($brandFilter); ?>" />
+      <?php endif; ?>
+      <?php if ($preferenceFilter !== ''): ?>
+        <input type="hidden" name="preference" value="<?php echo htmlspecialchars($preferenceFilter); ?>" />
+      <?php endif; ?>
       <button type="submit" style="display: none;"></button>
     </form>
 
