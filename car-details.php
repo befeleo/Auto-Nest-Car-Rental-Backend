@@ -1,11 +1,13 @@
 <?php
 require_once __DIR__ . '/database/db_connect.php';
 
-function esc($value) {
+function esc($value)
+{
   return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
-function toBool($value) {
+function toBool($value)
+{
   if ($value === null) return null;
   if (is_bool($value)) return $value;
   $s = strtolower(trim((string)$value));
@@ -13,19 +15,30 @@ function toBool($value) {
   return in_array($s, ['1', 'true', 'yes', 'y'], true);
 }
 
-function humanizeKey($key) {
+function ensureCarStatusColumnExists(PDO $pdo): void
+{
+  $hasStatus = $pdo->query("SHOW COLUMNS FROM cars LIKE 'status'")->rowCount();
+  if ($hasStatus === 0) {
+    $pdo->exec("ALTER TABLE cars ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'available' AFTER image_path");
+  }
+}
+
+function humanizeKey($key)
+{
   $k = preg_replace('/[_-]+/', ' ', (string)$key);
   $k = preg_replace('/(?<!^)([A-Z])/', ' $1', $k);
   $k = preg_replace('/\s+/', ' ', $k);
   return ucwords(trim($k));
 }
 
-function formatNumber($n) {
+function formatNumber($n)
+{
   $num = is_numeric($n) ? (float)$n : 0.0;
   return number_format($num, 0, '.', ',');
 }
 
-function parseFeatures($value) {
+function parseFeatures($value)
+{
   if (is_array($value)) return array_values(array_filter(array_map('trim', array_map('strval', $value))));
   if (!is_string($value)) return [];
   $parts = preg_split('/,|\n|;|\|/', $value);
@@ -37,7 +50,8 @@ function parseFeatures($value) {
   return $out;
 }
 
-function starsHtml($rating) {
+function starsHtml($rating)
+{
   $r = is_numeric($rating) ? (float)$rating : 0.0;
   $r = max(0.0, min(5.0, $r));
   $full = (int)floor($r);
@@ -48,7 +62,8 @@ function starsHtml($rating) {
     . str_repeat('<i class="far fa-star"></i>', $empty);
 }
 
-function collectImages($car, $fallback) {
+function collectImages($car, $fallback)
+{
   $images = [];
   foreach (($car ?? []) as $k => $v) {
     if (!preg_match('/image/i', (string)$k)) continue;
@@ -57,7 +72,10 @@ function collectImages($car, $fallback) {
     if ($src === '') continue;
     $exists = false;
     foreach ($images as $img) {
-      if ($img['src'] === $src) { $exists = true; break; }
+      if ($img['src'] === $src) {
+        $exists = true;
+        break;
+      }
     }
     if ($exists) continue;
     $images[] = ['src' => $src, 'label' => humanizeKey($k)];
@@ -104,6 +122,7 @@ $images = $car ? collectImages($car, $fallbackImage) : [['src' => $fallbackImage
 $isPopular = $car ? (toBool($car['isPopular'] ?? null) === true) : false;
 $isLuxury = $car ? (toBool($car['isLuxury'] ?? null) === true) : false;
 $isUsed = $car ? toBool($car['isUsed'] ?? null) : null;
+$isAvailable = $car ? ((array_key_exists('status', $car) ? strtolower(trim((string)$car['status'])) : 'available') === 'available') : false;
 
 $primarySpecs = [];
 if ($car) {
@@ -127,6 +146,7 @@ if ($car) {
 }
 
 $additionalSpecs = [];
+$extraFields = [];
 if ($car) {
   $specs = [
     ['Location', $car['location'] ?? null, 'fa-map-marker-alt'],
@@ -139,22 +159,43 @@ if ($car) {
     if ($value === null || $value === '') continue;
     $additionalSpecs[] = ['label' => $label, 'value' => (string)$value, 'icon' => $icon];
   }
-  if (array_key_exists('available', $car) && toBool($car['available']) !== null) {
-    $avail = toBool($car['available']) === true;
-    array_unshift($additionalSpecs, [
-      'label' => 'Availability',
-      'value' => $avail ? 'Available Now' : 'Not Available',
-      'icon' => $avail ? 'fa-check-circle' : 'fa-times-circle',
-    ]);
-  }
-}
 
-$extraFields = [];
-if ($car) {
+  if (array_key_exists('status', $car)) {
+    $car['available'] = strtolower(trim((string)$car['status'])) === 'available';
+  }
+  if (!array_key_exists('available', $car)) {
+    $car['available'] = true;
+  }
+
   $excluded = array_fill_keys([
-    'id','brand','name','price','bodyType','fuelType','transmission','isUsed','isPopular','isLuxury','features',
-    'image','image_path','imagePath','detailImage','detail_image','description','rating','reviews','available',
-    'seats','engine','color','mileage','year','fuelEfficiency','power','torque',
+    'id',
+    'brand',
+    'name',
+    'price',
+    'bodyType',
+    'fuelType',
+    'transmission',
+    'isUsed',
+    'isPopular',
+    'isLuxury',
+    'features',
+    'image',
+    'image_path',
+    'imagePath',
+    'detailImage',
+    'detail_image',
+    'description',
+    'rating',
+    'reviews',
+    'available',
+    'seats',
+    'engine',
+    'color',
+    'mileage',
+    'year',
+    'fuelEfficiency',
+    'power',
+    'torque',
   ], true);
   foreach ($car as $k => $v) {
     if (isset($excluded[$k])) continue;
@@ -166,7 +207,8 @@ if ($car) {
 $relatedCars = [];
 if ($car) {
   try {
-    $stmt = $pdo->query("SELECT * FROM cars ORDER BY id DESC LIMIT 40");
+    ensureCarStatusColumnExists($pdo);
+    $stmt = $pdo->query("SELECT * FROM cars WHERE status = 'available' ORDER BY id DESC LIMIT 40");
     $candidates = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $brand = $car['brand'] ?? null;
     $bodyType = $car['bodyType'] ?? null;
@@ -179,7 +221,7 @@ if ($car) {
       if (toBool($cand['isLuxury'] ?? null) === true) $score += 1;
       $relatedCars[] = ['score' => $score, 'car' => $cand];
     }
-    usort($relatedCars, function($a, $b) {
+    usort($relatedCars, function ($a, $b) {
       if ($a['score'] === $b['score']) {
         return (int)($b['car']['id'] ?? 0) <=> (int)($a['car']['id'] ?? 0);
       }
@@ -268,6 +310,13 @@ if (isset($_GET['booking'])) {
         <?php if ($isLuxury): ?><div class="status-badge luxury">Luxury</div><?php endif; ?>
         <?php if ($isUsed === true): ?><div class="status-badge used">Used</div><?php endif; ?>
         <?php if ($isUsed === false): ?><div class="status-badge new">New</div><?php endif; ?>
+        <?php if ($car): ?>
+          <?php if ($isAvailable): ?>
+            <div class="status-badge available">Available</div>
+          <?php else: ?>
+            <div class="status-badge booked">Booked</div>
+          <?php endif; ?>
+        <?php endif; ?>
       </div>
 
       <section class="car-gallery-section" aria-label="Car gallery">
@@ -389,7 +438,13 @@ if (isset($_GET['booking'])) {
             </div>
           <?php endif; ?>
 
-          <form id="booking-form" method="post" action="booking_submit.php" novalidate>
+          <?php if ($car && !$isAvailable): ?>
+            <div class="booking-unavailable-message">
+              This vehicle has already been booked and is currently unavailable. Please choose another car from the listing.
+            </div>
+          <?php endif; ?>
+
+          <form id="booking-form" method="post" action="booking_submit.php" novalidate <?= ($car && !$isAvailable ? 'hidden' : '') ?>>
             <input type="hidden" id="car-id" name="car_id" value="<?= esc($car['id'] ?? '') ?>" />
             <input type="hidden" id="car-name" name="car_name" value="<?= esc($title) ?>" />
             <input type="hidden" id="daily-rate-input" name="daily_rate" value="<?= esc((string)$price) ?>" />
@@ -493,7 +548,7 @@ if (isset($_GET['booking'])) {
 
           <?php if ($bookingFlash && $bookingFlash['type'] === 'success'): ?>
             <script>
-              (function () {
+              (function() {
                 const form = document.getElementById('booking-form');
                 const success = document.getElementById('success-message');
                 const details = document.getElementById('success-details');
@@ -521,10 +576,10 @@ if (isset($_GET['booking'])) {
         <div class="related-cars-grid" id="related-cars-grid">
           <?php foreach ($relatedCars as $wrap): $rc = $wrap['car']; ?>
             <?php
-              $rcTitle = trim(($rc['brand'] ?? '') . ' ' . ($rc['name'] ?? '')) ?: 'Car';
-              $rcImages = collectImages($rc, $fallbackImage);
-              $rcImg = $rcImages[0]['src'] ?? $fallbackImage;
-              $rcSpecs = array_filter([$rc['bodyType'] ?? null, $rc['fuelType'] ?? null, $rc['transmission'] ?? null]);
+            $rcTitle = trim(($rc['brand'] ?? '') . ' ' . ($rc['name'] ?? '')) ?: 'Car';
+            $rcImages = collectImages($rc, $fallbackImage);
+            $rcImg = $rcImages[0]['src'] ?? $fallbackImage;
+            $rcSpecs = array_filter([$rc['bodyType'] ?? null, $rc['fuelType'] ?? null, $rc['transmission'] ?? null]);
             ?>
             <a class="related-car-card" href="car-details.php?id=<?= esc(urlencode((string)($rc['id'] ?? ''))) ?>">
               <img alt="<?= esc($rcTitle) ?>" src="<?= esc($rcImg) ?>" onerror="this.src='<?= esc($fallbackImage) ?>'">

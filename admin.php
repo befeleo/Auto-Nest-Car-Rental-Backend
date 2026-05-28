@@ -150,22 +150,6 @@ if (empty($_SESSION['autonest_admin'])) {
           </section>
         </div>
 
-        <div id="customers-section" class="content-section">
-          <header class="inventory-header">
-            <h1>Manage Customers</h1>
-          </header>
-
-          <div class="under-construction">
-            <div class="construction-icon">🚧</div>
-            <h2>Section Under Construction</h2>
-            <p>
-              We are currently working on the customer management system. This
-              feature will be available soon!
-            </p>
-            <a href="index.html" class="toggle-btn">Back to Home</a>
-          </div>
-        </div>
-
         <div id="setting-section" class="content-section">
           <header class="inventory-header">
             <h1>Setting</h1>
@@ -230,18 +214,18 @@ if (empty($_SESSION['autonest_admin'])) {
                 <div class="form-fields-column">
                   <div class="input-group">
                     <label for="new-admin-name">Full Name</label>
-                    <input type="text" id="new-admin-name" placeholder="Enter full name" required />
+                    <input type="text" id="new-admin-name" name="adminName" placeholder="Enter full name" required />
                   </div>
 
                   <div class="input-group">
                     <label for="new-admin-email">Email Address</label>
-                    <input type="email" id="new-admin-email" placeholder="Enter registration email" required />
+                    <input type="email" id="new-admin-email" name="adminEmail" placeholder="Enter registration email" required />
                   </div>
 
                   <div class="input-group">
                     <label for="new-admin-password">Account Password</label>
                     <div class="input-wrapper">
-                      <input type="password" id="new-admin-password" placeholder="Create secure password" required />
+                      <input type="password" id="new-admin-password" name="adminPassword" placeholder="Create secure password" required />
                       <button type="button" id="new-password-toggle" class="password-toggle" aria-label="Show password">👁</button>
                     </div>
                   </div>
@@ -249,7 +233,7 @@ if (empty($_SESSION['autonest_admin'])) {
                   <div class="input-group">
                     <label for="new-admin-confirm-password">Confirm Password</label>
                     <div class="input-wrapper">
-                      <input type="password" id="new-admin-confirm-password" placeholder="Retype password" required />
+                      <input type="password" id="new-admin-confirm-password" name="adminConfirmPassword" placeholder="Retype password" required />
                       <button type="button" id="confirm-password-toggle" class="password-toggle" aria-label="Show confirm password">👁</button>
                     </div>
                   </div>

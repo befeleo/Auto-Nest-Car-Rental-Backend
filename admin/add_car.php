@@ -8,8 +8,17 @@ if (empty($_SESSION['autonest_admin'])) {
 }
 include '../database/db_connect.php';
 
+function ensureCarStatusColumnExists(PDO $pdo): void
+{
+    $hasStatus = $pdo->query("SHOW COLUMNS FROM cars LIKE 'status'")->rowCount();
+    if ($hasStatus === 0) {
+        $pdo->exec("ALTER TABLE cars ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'available' AFTER image_path");
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        ensureCarStatusColumnExists($pdo);
         $id = !empty($_POST['id']) ? $_POST['id'] : null;
 
         $brand = $_POST['brand'] ?? '';
@@ -70,8 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute($params);
             $msg = "Vehicle updated!";
         } else {
-            $sql = "INSERT INTO cars (brand, name, price, bodyType, fuelType, transmission, isUsed, isPopular, isLuxury, features, image_path, image_side, image_dashboard) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO cars (brand, name, price, bodyType, fuelType, transmission, isUsed, isPopular, isLuxury, features, image_path, image_side, image_dashboard, status) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 $brand,
@@ -86,7 +95,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $features,
                 $pathMain ?? 'assets/images/cars/placeholder.png',
                 $pathSide,
-                $pathDash
+                $pathDash,
+                'available'
             ]);
             $msg = "New vehicle added!";
         }

@@ -26,12 +26,12 @@ tabLinks.forEach((link) => {
 
 const redirectToBrand = (brandName) => {
     if (!brandName) return;
-    window.location.href = `brand-car.php?brand=${encodeURIComponent(brandName)}`;
+    window.location.href = `services.php?brand=${encodeURIComponent(brandName)}`;
 };
 
 const redirectToPreference = (preferenceValue) => {
     if (!preferenceValue) return;
-    window.location.href = `preference-car.php?preference=${encodeURIComponent(preferenceValue)}`;
+    window.location.href = `services.php?preference=${encodeURIComponent(preferenceValue)}`;
 };
 
 brandCard.forEach(brand => {
