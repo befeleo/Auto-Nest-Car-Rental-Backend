@@ -50,7 +50,7 @@ filterOptions.forEach(filter => {
 });
 
 async function loadPopularCars() {
-    const carData = 'popular_cars.php';
+    const carData = 'popular-cars.php';
 
     try {
         const response = await fetch(carData);
