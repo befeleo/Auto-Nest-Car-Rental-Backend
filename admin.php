@@ -32,9 +32,7 @@ if (empty($_SESSION['autonest_admin'])) {
         <a href="#" class="nav-link" data-section="bookings">
           <img src="assets/icons/calendar-solid.svg" alt="book" class="nav-icon" />Bookings
         </a>
-        <a href="#" class="nav-link" data-section="customers">
-          <img src="assets/icons/users-solid.svg" alt="customers" class="nav-icon" />Customers
-        </a>
+
         <a href="index.html" class="nav-link" data-section="site">
           <img src="assets/icons/globe-solid.svg" alt="website" class="nav-icon" />View Site
         </a>
