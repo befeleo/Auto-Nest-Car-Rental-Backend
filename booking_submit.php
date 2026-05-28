@@ -69,6 +69,16 @@ $carIdRaw = requireField('car_id', 'Car');
 if (!ctype_digit($carIdRaw)) jsonFail('Invalid car id.', 422);
 $carId = (int)$carIdRaw;
 
+function ensureCarStatusColumnExists(PDO $pdo): void
+{
+  $hasStatus = $pdo->query("SHOW COLUMNS FROM cars LIKE 'status'")->rowCount();
+  if ($hasStatus === 0) {
+    $pdo->exec("ALTER TABLE cars ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'available' AFTER image_path");
+  }
+}
+
+ensureCarStatusColumnExists($pdo);
+
 $fullName = requireField('full-name', 'Full name');
 $email = requireField('email', 'Email');
 $phone = normalizePhone(requireField('phone', 'Phone number'));
@@ -88,10 +98,15 @@ if (!$pickupDate || !$dropoffDate) jsonFail('Invalid pick-up or drop-off date.',
 if ($dropoffDate <= $pickupDate) jsonFail('Drop-off date must be after pick-up date.', 422);
 
 try {
-  $stmt = $pdo->prepare("SELECT id, brand, name, price FROM cars WHERE id = ? LIMIT 1");
+  $stmt = $pdo->prepare("SELECT id, brand, name, price, status FROM cars WHERE id = ? LIMIT 1");
   $stmt->execute([$carId]);
   $car = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
   if (!$car) jsonFail('Car not found.', 404);
+
+  $status = strtolower(trim((string)($car['status'] ?? 'available')));
+  if ($status !== 'available') {
+    jsonFail('This car is currently not available.', 409);
+  }
 
   $pricePerDay = isset($car['price']) && is_numeric($car['price']) ? (float)$car['price'] : 0.0;
   $days = (int)$dropoffDate->diff($pickupDate)->format('%a');
@@ -158,6 +173,7 @@ try {
   ]);
 
   $bookingId = (int)$pdo->lastInsertId();
+  $pdo->prepare("UPDATE cars SET status = 'booked' WHERE id = ?")->execute([$carId]);
 
   if (isAjaxRequest()) {
     jsonResponse(200, [

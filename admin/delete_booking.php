@@ -22,12 +22,28 @@ if ($id <= 0) {
 }
 
 try {
+    $carStmt = $pdo->prepare("SELECT car_id FROM bookings WHERE id = ? LIMIT 1");
+    $carStmt->execute([$id]);
+    $carId = $carStmt->fetchColumn();
+
     $stmt = $pdo->prepare("DELETE FROM bookings WHERE id = ?");
     $stmt->execute([$id]);
 
     if ($stmt->rowCount() === 0) {
         echo json_encode(["status" => "error", "message" => "Booking not found"]);
         exit;
+    }
+
+    if ($carId) {
+        $checkStatusCol = $pdo->query("SHOW COLUMNS FROM cars LIKE 'status'")->rowCount();
+        if ($checkStatusCol === 0) {
+            $pdo->exec("ALTER TABLE cars ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'available'");
+        }
+        $other = $pdo->prepare("SELECT COUNT(*) FROM bookings WHERE car_id = ? AND status IN ('pending','confirmed')");
+        $other->execute([$carId]);
+        if ((int)$other->fetchColumn() === 0) {
+            $pdo->prepare("UPDATE cars SET status = 'available' WHERE id = ?")->execute([$carId]);
+        }
     }
 
     echo json_encode([

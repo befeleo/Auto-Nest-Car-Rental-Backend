@@ -23,6 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (sectionName === 'bookings') {
             loadBookingsFromDB();
+        } else if (sectionName === 'dashboard' && typeof loadDashboard === 'function') {
+            loadDashboard();
         }
     };
 

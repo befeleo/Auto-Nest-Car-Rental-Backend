@@ -30,15 +30,30 @@
     }
 
     try {
+        $carStmt = $pdo->prepare("SELECT car_id FROM bookings WHERE id = ? LIMIT 1");
+        $carStmt->execute([$id]);
+        $carId = $carStmt->fetchColumn();
+        if (!$carId) {
+            echo json_encode(["status" => "error", "message" => "Booking not found"]);
+            exit;
+        }
+
+        $checkStatusCol = $pdo->query("SHOW COLUMNS FROM cars LIKE 'status'")->rowCount();
+        if ($checkStatusCol === 0) {
+            $pdo->exec("ALTER TABLE cars ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'available'");
+        }
+
         $stmt = $pdo->prepare("UPDATE bookings SET status = ? WHERE id = ?");
         $stmt->execute([$status, $id]);
 
-        if ($stmt->rowCount() === 0) {
-            $exists = $pdo->prepare("SELECT id FROM bookings WHERE id = ? LIMIT 1");
-            $exists->execute([$id]);
-            if (!$exists->fetchColumn()) {
-                echo json_encode(["status" => "error", "message" => "Booking not found"]);
-                exit;
+        if ($status === 'confirmed' || $status === 'pending') {
+            $updateCar = $pdo->prepare("UPDATE cars SET status = 'booked' WHERE id = ?");
+            $updateCar->execute([$carId]);
+        } elseif ($status === 'cancelled') {
+            $other = $pdo->prepare("SELECT COUNT(*) FROM bookings WHERE car_id = ? AND status IN ('pending','confirmed') AND id <> ?");
+            $other->execute([$carId, $id]);
+            if ((int)$other->fetchColumn() === 0) {
+                $pdo->prepare("UPDATE cars SET status = 'available' WHERE id = ?")->execute([$carId]);
             }
         }
 

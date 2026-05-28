@@ -47,6 +47,7 @@ async function loadCars() {
             return {
                 ...dbRow,
                 image: carImage,
+                status: String(dbRow.status || 'available').toLowerCase(),
                 isPopular: dbRow.isPopular == 1,
                 isLuxury: dbRow.isLuxury == 1,
                 isUsed: dbRow.isUsed == 1,

@@ -1,24 +1,14 @@
 <?php
+
 declare(strict_types=1);
 
 require __DIR__ . '/vendor/autoload.php';
 
-function loadEnv(string $path): void
-{
-    if (!file_exists($path)) {
-        return;
-    }
-    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        $trimmed = trim($line);
-        if ($trimmed === '' || str_starts_with($trimmed, '#')) {
-            continue;
-        }
-        putenv($trimmed);
-    }
+try {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->load();
+} catch (Throwable $e) {
 }
-
-loadEnv(__DIR__ . '/.env');
 
 function respondHtml(int $statusCode, string $title, string $message): void
 {
@@ -51,9 +41,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     respondHtml(405, 'Method Not Allowed', 'Please submit the contact form.');
 }
 
-$apiKey = getenv('RESEND_API_KEY') ?: '';
-$contactTo = getenv('CONTACT_TO_EMAIL') ?: '';
-$fromEmail = getenv('CONTACT_FROM_EMAIL') ?: '';
+$apiKey    = $_ENV['RESEND_API_KEY'] ?? getenv('RESEND_API_KEY') ?: '';
+$contactTo = $_ENV['CONTACT_TO_EMAIL'] ?? getenv('CONTACT_TO_EMAIL') ?: '';
+$fromEmail = $_ENV['CONTACT_FROM_EMAIL'] ?? getenv('CONTACT_FROM_EMAIL') ?: '';
+
+$apiKey    = trim($apiKey, " \t\n\r\0\x0B\"");
+$contactTo = trim($contactTo, " \t\n\r\0\x0B\"");
+$fromEmail = trim($fromEmail, " \t\n\r\0\x0B\"");
 
 if ($apiKey === '' || $contactTo === '' || $fromEmail === '') {
     respondHtml(

@@ -2,6 +2,14 @@
 header('Content-Type: application/json');
 require 'database/db_connect.php';
 
+function ensureCarStatusColumnExists(PDO $pdo): void
+{
+    $hasStatus = $pdo->query("SHOW COLUMNS FROM cars LIKE 'status'")->rowCount();
+    if ($hasStatus === 0) {
+        $pdo->exec("ALTER TABLE cars ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'available' AFTER image_path");
+    }
+}
+
 $brand = isset($_GET['brand']) ? trim($_GET['brand']) : '';
 $preference = isset($_GET['preference']) ? strtolower(trim($_GET['preference'])) : '';
 
@@ -36,8 +44,10 @@ $filterMap = [
 ];
 
 try {
+    ensureCarStatusColumnExists($pdo);
+
     if ($brand !== '') {
-        $sql = "SELECT * FROM cars WHERE LOWER(brand) = LOWER(?) ORDER BY id DESC";
+        $sql = "SELECT * FROM cars WHERE LOWER(brand) = LOWER(?) AND status = 'available' ORDER BY id DESC";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$brand]);
     } elseif ($preference !== '') {
@@ -47,10 +57,10 @@ try {
             exit;
         }
 
-        $sql = "SELECT * FROM cars WHERE {$filterMap[$preference]} ORDER BY id DESC";
+        $sql = "SELECT * FROM cars WHERE status = 'available' AND {$filterMap[$preference]} ORDER BY id DESC";
         $stmt = $pdo->query($sql);
     } else {
-        $stmt = $pdo->query("SELECT * FROM cars ORDER BY id DESC");
+        $stmt = $pdo->query("SELECT * FROM cars WHERE status = 'available' ORDER BY id DESC");
     }
 
     $cars = $stmt->fetchAll(PDO::FETCH_ASSOC);

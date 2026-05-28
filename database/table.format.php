@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS cars (
     isPopular TINYINT(1) DEFAULT 0,
     isLuxury TINYINT(1) DEFAULT 0,
     features TEXT,
-    image_path VARCHAR(500) DEFAULT 'assets/images/car_images/placeholder.png'
+    image_path VARCHAR(500) DEFAULT 'assets/images/car_images/placeholder.png',
+    status VARCHAR(20) NOT NULL DEFAULT 'available'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ";
 
@@ -52,7 +53,8 @@ CREATE TABLE IF NOT EXISTS bookings (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ";
 
-function createTables($pdo) {
+function createTables($pdo)
+{
     global $adminTableSQL, $carsTableSQL, $bookingsTableSQL;
 
     try {
@@ -67,7 +69,6 @@ function createTables($pdo) {
         // Create bookings table
         $pdo->exec($bookingsTableSQL);
         echo "Bookings table created successfully.\n";
-
     } catch (PDOException $e) {
         echo "Error creating tables: " . $e->getMessage() . "\n";
     }
