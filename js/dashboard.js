@@ -1,5 +1,5 @@
 let dashboardData = { stats: { totalCars: 0, totalBookings: 0, availableCars: 0, totalCustomers: 0 } };
-let monthlyBookingsData = array_fill_fallback(); // 🌟 New helper placeholder
+let monthlyBookingsData = array_fill_fallback();
 let bookingChartInstance = null;
 let vehicleChartInstance = null;
 
@@ -44,7 +44,7 @@ function renderCharts() {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             datasets: [{
                 label: 'Bookings',
-                data: monthlyBookingsData, // 🌟 FIXED: Swapped static values for dynamic data array!
+                data: monthlyBookingsData,
                 backgroundColor: 'rgba(41, 150, 184, 0.2)',
                 borderColor: '#2996B8',
                 borderWidth: 3,
@@ -52,7 +52,6 @@ function renderCharts() {
                 tension: 0.4
             }]
         },
-        // ... keep rest of options unchanged ...
         options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -66,7 +65,6 @@ function renderCharts() {
         data: {
             labels: ['Available', 'Booked'],
             datasets: [{
-                // ✅ FIXED: Replaced empty spaces with OR fallback operator (||)
                 data: [stats.availableCars || 0, stats.totalBookings || 0],
                 backgroundColor: ['#2996B8', '#e94560'],
                 borderWidth: 2,
@@ -92,7 +90,7 @@ async function loadDashboard() {
         const data = await response.json();
 
         dashboardData = data || { stats: {} };
-        // 🌟 NEW: Extract monthly booking trend numbers from server response
+
         monthlyBookingsData = data.monthlyBookings || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
         updateDashboardCards(dashboardData.stats || {});
@@ -102,4 +100,4 @@ async function loadDashboard() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', loadDashboard); s
+document.addEventListener('DOMContentLoaded', loadDashboard);

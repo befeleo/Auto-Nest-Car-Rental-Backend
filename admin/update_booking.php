@@ -75,25 +75,6 @@ try {
         ]);
         exit; // Clean exit after success
 
-    } catch (Exception $e) {
-        http_response_code(500);
-        echo json_encode(["status" => "error", "message" => $e->getMessage()]);
-        exit;
-    }
-}catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(["status" => "error", "message" => $e->getMessage()]);
-}
-
-
-    echo json_encode([
-        "status" => "success",
-        "message" => "Booking status updated",
-        "booking" => [
-            "id" => $id,
-            "status" => $status
-        ]
-    ]);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(["status" => "error", "message" => $e->getMessage()]);

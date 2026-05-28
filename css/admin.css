@@ -114,6 +114,17 @@ main {
   display: block !important;
 }
 
+.site-preview {
+  width: 100%;
+}
+
+#site-iframe {
+  width: 100%;
+  min-height: 85vh;
+  height: 100%;
+  border: none;
+}
+
 #formModal {
   position: fixed;
   top: 0;

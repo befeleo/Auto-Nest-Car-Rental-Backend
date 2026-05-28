@@ -33,7 +33,7 @@ if (empty($_SESSION['autonest_admin'])) {
           <img src="assets/icons/calendar-solid.svg" alt="book" class="nav-icon" />Bookings
         </a>
 
-        <a href="index.html" class="nav-link" data-section="site">
+        <a href="#" class="nav-link" data-section="site">
           <img src="assets/icons/globe-solid.svg" alt="website" class="nav-icon" />View Site
         </a>
 
@@ -147,6 +147,15 @@ if (empty($_SESSION['autonest_admin'])) {
                 <tbody id="admin-booking-list"></tbody>
               </table>
             </div>
+          </section>
+        </div>
+
+        <div id="site-section" class="content-section">
+          <header class="inventory-header">
+          </header>
+
+          <section class="site-preview">
+            <iframe id="site-iframe" src="public/index.php" title="Auto Nest Public Site"></iframe>
           </section>
         </div>
 

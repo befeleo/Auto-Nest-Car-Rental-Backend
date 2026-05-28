@@ -36,7 +36,7 @@ try {
         $stats['totalCustomers'] = (int)$customerCount->fetchColumn();
     }
 
-    // 🌟 NEW: 5. Fetch Dynamic Monthly Bookings for the Line Chart
+    
     $monthlyData = array_fill(0, 12, 0); // Initializes an array with twelve 0s [0,0,0...0]
 
     if ($checkBookings > 0) {
