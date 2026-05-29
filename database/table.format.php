@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS admin_users (
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role VARCHAR(50) DEFAULT 'admin'
+    role VARCHAR(50) DEFAULT 'admin',
+    profile_picture VARCHAR(500) NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ";
 

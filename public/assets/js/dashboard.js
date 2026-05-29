@@ -86,7 +86,7 @@ async function loadDashboard() {
     if (!bookingCanvas || !vehicleCanvas) return;
 
     try {
-        const response = await fetch('admin/get_dashboard_stats.php');
+        const response = await fetch('admin/dashboard/stats.php');
         if (!response.ok) throw new Error(`Failed to fetch dashboard stats: ${response.status}`);
         const data = await response.json();
 

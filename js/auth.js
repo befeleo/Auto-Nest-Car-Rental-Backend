@@ -1,7 +1,7 @@
 async function protectAdminPage() {
     const loggedIn = await isLoggedIn();
     if (!loggedIn) {
-        window.location.href = "login.html";
+        window.location.href = "public/login.html";
     }
 }
 
@@ -45,7 +45,7 @@ function initLogin() {
             formData.append("email", email.value);
             formData.append("password", password.value);
 
-            const response = await fetch("admin/auth.php", {
+            const response = await fetch("admin/auth/auth.php", {
                 method: "POST",
                 body: formData
             });
@@ -76,7 +76,7 @@ async function isLoggedIn() {
         const formData = new FormData();
         formData.append("action", "check");
 
-        const response = await fetch("admin/auth.php", {
+        const response = await fetch("admin/auth/auth.php", {
             method: "POST",
             body: formData
         });
@@ -92,7 +92,7 @@ async function loadAdminData() {
     try {
         const formData = new FormData();
         formData.append("action", "check");
-        const response = await fetch("admin/auth.php", {
+        const response = await fetch("admin/auth/auth.php", {
             method: "POST",
             body: formData
         });
@@ -113,14 +113,14 @@ function setupLogout() {
             try {
                 const formData = new FormData();
                 formData.append("action", "logout");
-                await fetch("admin/auth.php", {
+                await fetch("admin/auth/auth.php", {
                     method: "POST",
                     body: formData
                 });
             } catch (error) {
                 // Redirect even if server logout request fails.
             }
-            window.location.href = "login.html";
+            window.location.href = "public/login.html";
         });
     }
 }

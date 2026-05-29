@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData(form);
 
             try {
-                const response = await fetch('admin/add_car.php', {
+                const response = await fetch('admin/cars/add.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -173,7 +173,7 @@ function renderBookingsTable() {
 
 async function loadInventoryFromDB() {
     try {
-        const response = await fetch('admin/get_cars.php');
+        const response = await fetch('admin/cars/list.php');
         const data = await response.json();
 
         if (Array.isArray(data)) {
@@ -207,7 +207,7 @@ async function loadInventoryFromDB() {
 
 async function loadBookingsFromDB() {
     try {
-        const response = await fetch('admin/get_bookings.php');
+        const response = await fetch('admin/bookings/get.php');
         const result = await response.json();
 
         if (result.status === 'success' && Array.isArray(result.bookings)) {
@@ -230,7 +230,7 @@ async function updateBookingStatus(id, status) {
     formData.append('status', status);
 
     try {
-        const response = await fetch('admin/update_booking.php', {
+        const response = await fetch('admin/bookings/update.php', {
             method: 'POST',
             body: formData
         });
@@ -256,7 +256,7 @@ async function deleteBookingById(id) {
     formData.append('id', id);
 
     try {
-        const response = await fetch('admin/delete_booking.php', {
+        const response = await fetch('admin/bookings/delete.php', {
             method: 'POST',
             body: formData
         });
@@ -304,7 +304,7 @@ window.deleteInventory = async (id) => {
     formData.append('id', id);
 
     try {
-        const response = await fetch('admin/delete_car.php', {
+        const response = await fetch('admin/cars/delete.php', {
             method: 'POST',
             body: formData
         });
@@ -401,11 +401,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             try {
                 const formData = new FormData();
                 formData.append('action', 'logout');
-                await fetch('admin/auth.php', { method: 'POST', body: formData });
+                await fetch('admin/auth/auth.php', { method: 'POST', body: formData });
             } catch (error) {
                 // still redirect
             }
-            window.location.href = 'login.html';
+            window.location.href = 'public/login.html';
         });
     }
 
@@ -445,7 +445,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     msgEl.style.color = '#495057';
                 }
 
-                const response = await fetch('admin/create_admin.php', {
+                const response = await fetch('admin/admins/create.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -529,7 +529,7 @@ async function loadAdminProfile() {
     if (!profileNameEl || !profileEmailEl) return null;
 
     try {
-        const response = await fetch('admin/get_admin_profile.php');
+        const response = await fetch('admin/profile/get.php');
         const data = await response.json();
 
         if (data.status === 'success' && data.user) {
@@ -592,7 +592,7 @@ async function saveAdminProfile(profileState) {
     if (passwordChanged) formData.append('newPassword', newPassword);
 
     try {
-        const response = await fetch('admin/update_profile.php', {
+        const response = await fetch('admin/profile/update.php', {
             method: 'POST',
             body: formData
         });

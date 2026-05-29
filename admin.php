@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (empty($_SESSION['autonest_admin'])) {
-  header('Location: login.html');
+  header('Location: public/login.html');
   exit;
 }
 ?>
@@ -176,10 +176,15 @@ if (empty($_SESSION['autonest_admin'])) {
 
               <div class="profile-upload-container">
                 <div class="profile-preview">
-                  <img src="assets/icons/user-solid.svg" alt="Profile" id="profile-img-preview" />
+                  <img src="assets/icons/user-solid.svg" alt="Profile" id="profile-img-preview" class="profile-img-default" />
                 </div>
                 <label for="admin-photo-upload" id="change-admin-photo">Change Photo</label>
-                <input type="file" id="admin-photo-upload" accept="image/*" />
+                <input
+                  type="file"
+                  id="admin-photo-upload"
+                  name="profile_photo"
+                  accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+                <p class="profile-upload-hint">Upload a JPG or PNG image (max 2 MB).</p>
               </div>
 
               <form id="admin-profile-form" class="setting-form-grid">

@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (loginForm) {
         const loggedIn = await isLoggedIn();
         if (loggedIn) {
-            window.location.href = "admin.php";
+            window.location.href = "../admin.php";
             return;
         }
         initLogin();
@@ -45,14 +45,14 @@ function initLogin() {
             formData.append("email", email.value);
             formData.append("password", password.value);
 
-            const response = await fetch("admin/auth.php", {
+            const response = await fetch("../admin/auth/auth.php", {
                 method: "POST",
                 body: formData
             });
             const result = await response.json();
 
             if (result.status === "success") {
-                window.location.href = "admin.php";
+                window.location.href = "../admin.php";
             } else {
                 showError(result.message || "Invalid email or password");
             }
@@ -76,7 +76,7 @@ async function isLoggedIn() {
         const formData = new FormData();
         formData.append("action", "check");
 
-        const response = await fetch("admin/auth.php", {
+        const response = await fetch("../admin/auth/auth.php", {
             method: "POST",
             body: formData
         });
@@ -92,7 +92,7 @@ async function loadAdminData() {
     try {
         const formData = new FormData();
         formData.append("action", "check");
-        const response = await fetch("admin/auth.php", {
+        const response = await fetch("../admin/auth/auth.php", {
             method: "POST",
             body: formData
         });
@@ -113,7 +113,7 @@ function setupLogout() {
             try {
                 const formData = new FormData();
                 formData.append("action", "logout");
-                await fetch("admin/auth.php", {
+                await fetch("../admin/auth/auth.php", {
                     method: "POST",
                     body: formData
                 });

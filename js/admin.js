@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData(form);
 
             try {
-                const response = await fetch('admin/add_car.php', {
+                const response = await fetch('admin/cars/add.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -173,7 +173,7 @@ function renderBookingsTable() {
 
 async function loadInventoryFromDB() {
     try {
-        const response = await fetch('admin/get_cars.php');
+        const response = await fetch('admin/cars/list.php');
         const data = await response.json();
 
         if (Array.isArray(data)) {
@@ -207,7 +207,7 @@ async function loadInventoryFromDB() {
 
 async function loadBookingsFromDB() {
     try {
-        const response = await fetch('admin/get_bookings.php');
+        const response = await fetch('admin/bookings/get.php');
         const result = await response.json();
 
         if (result.status === 'success' && Array.isArray(result.bookings)) {
@@ -230,7 +230,7 @@ async function updateBookingStatus(id, status) {
     formData.append('status', status);
 
     try {
-        const response = await fetch('admin/update_booking.php', {
+        const response = await fetch('admin/bookings/update.php', {
             method: 'POST',
             body: formData
         });
@@ -256,7 +256,7 @@ async function deleteBookingById(id) {
     formData.append('id', id);
 
     try {
-        const response = await fetch('admin/delete_booking.php', {
+        const response = await fetch('admin/bookings/delete.php', {
             method: 'POST',
             body: formData
         });
@@ -304,7 +304,7 @@ window.deleteInventory = async (id) => {
     formData.append('id', id);
 
     try {
-        const response = await fetch('admin/delete_car.php', {
+        const response = await fetch('admin/cars/delete.php', {
             method: 'POST',
             body: formData
         });
@@ -401,11 +401,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             try {
                 const formData = new FormData();
                 formData.append('action', 'logout');
-                await fetch('admin/auth.php', { method: 'POST', body: formData });
+                await fetch('admin/auth/auth.php', { method: 'POST', body: formData });
             } catch (error) {
                 // still redirect
             }
-            window.location.href = 'login.html';
+            window.location.href = 'public/login.html';
         });
     }
 
@@ -445,7 +445,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     msgEl.style.color = '#495057';
                 }
 
-                const response = await fetch('admin/create_admin.php', {
+                const response = await fetch('admin/admins/create.php', {
                     method: 'POST',
                     body: formData
                 });
@@ -520,7 +520,75 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupPasswordToggle('new-password-toggle', 'new-admin-password');
     setupPasswordToggle('confirm-password-toggle', 'new-admin-confirm-password');
     setupPasswordToggle('admin-password-toggle', 'admin-password');
+    setupProfilePhotoUpload();
 });
+
+const DEFAULT_PROFILE_ICON = 'assets/icons/user-solid.svg';
+const ALLOWED_PROFILE_TYPES = ['image/jpeg', 'image/png'];
+const MAX_PROFILE_PHOTO_BYTES = 2 * 1024 * 1024;
+
+function setProfilePreviewImage(profilePicture) {
+    const preview = document.getElementById('profile-img-preview');
+    if (!preview) return;
+
+    if (profilePicture) {
+        preview.src = `${profilePicture}?t=${Date.now()}`;
+        preview.classList.remove('profile-img-default');
+        preview.classList.add('profile-img-photo');
+        preview.alt = 'Admin profile photo';
+        return;
+    }
+
+    preview.src = DEFAULT_PROFILE_ICON;
+    preview.classList.add('profile-img-default');
+    preview.classList.remove('profile-img-photo');
+    preview.alt = 'Profile';
+}
+
+function setupProfilePhotoUpload() {
+    const photoInput = document.getElementById('admin-photo-upload');
+    if (!photoInput) return;
+
+    photoInput.addEventListener('change', async (event) => {
+        const file = event.target.files?.[0];
+        event.target.value = '';
+
+        if (!file) return;
+
+        if (!ALLOWED_PROFILE_TYPES.includes(file.type)) {
+            setProfileMessage('Please upload a JPG or PNG image only.', true);
+            return;
+        }
+
+        if (file.size > MAX_PROFILE_PHOTO_BYTES) {
+            setProfileMessage('Profile photo must be 2 MB or smaller.', true);
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('profile_photo', file);
+
+        try {
+            setProfileMessage('Uploading profile photo...', false);
+
+            const response = await fetch('admin/profile/upload_photo.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            if (result.status === 'success' && result.profilePicture) {
+                setProfilePreviewImage(result.profilePicture);
+                setProfileMessage(result.message || 'Profile photo updated.', false);
+            } else {
+                setProfileMessage(result.message || 'Could not upload profile photo.', true);
+            }
+        } catch (error) {
+            console.error('Profile photo upload error:', error);
+            setProfileMessage('Could not upload profile photo.', true);
+        }
+    });
+}
 
 async function loadAdminProfile() {
     const profileNameEl = document.getElementById('admin-name');
@@ -529,15 +597,17 @@ async function loadAdminProfile() {
     if (!profileNameEl || !profileEmailEl) return null;
 
     try {
-        const response = await fetch('admin/get_admin_profile.php');
+        const response = await fetch('admin/profile/get.php');
         const data = await response.json();
 
         if (data.status === 'success' && data.user) {
             profileNameEl.value = data.user.name || '';
             profileEmailEl.value = data.user.email || '';
+            setProfilePreviewImage(data.user.profilePicture || '');
             return {
                 name: data.user.name || '',
-                email: data.user.email || ''
+                email: data.user.email || '',
+                profilePicture: data.user.profilePicture || ''
             };
         }
     } catch (error) {
@@ -592,7 +662,7 @@ async function saveAdminProfile(profileState) {
     if (passwordChanged) formData.append('newPassword', newPassword);
 
     try {
-        const response = await fetch('admin/update_profile.php', {
+        const response = await fetch('admin/profile/update.php', {
             method: 'POST',
             body: formData
         });
